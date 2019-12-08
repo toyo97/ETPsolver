@@ -20,8 +20,6 @@ public class Instance {
     private int[] subscriptions;
 
     private boolean[][] P;
-    
-    private int[] currentSol;
 
     /**
      * Class with reading/writing (I/O) utility functions
