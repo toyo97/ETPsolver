@@ -72,14 +72,14 @@ public class Instance {
     }
 
     /**
+     * Creates matrix of shape (nStudents, nExams). Element i,j is true if student i subscribed to exam j
+     * otherwise is false
+     *
      * NOTE: this implementation is NOT under the assumptions that every input element is of incremental
-     * value (even if the test instancese seem to be like that). For this reason the algorithm has to search
+     * value (even if the test instances seem to be like that). For this reason the algorithm has to search
      * through arrays `students` and `exams` for matching with IDs.
      * If we can make the assumption that studID is in position studID-1 in the array,
      * this implementation could be re-writed for more performance in input reading.
-     *
-     * @return  Matrix of shape (nStudents, nExams). Element i,j is true if student i subscribed to exam j
-     *          otherwise is false
      */
     private void readStudents() throws IOException {
         List<Integer> inputStudents = new ArrayList<>();
@@ -124,12 +124,9 @@ public class Instance {
         }
     }
 
-    /**
-     * @return  Max number of timeslots
-     */
-    private int readNTimeslots(){
-        // TODO implement reading of `.slo` file
-        return this.nTimeslots;
+    private void readNTimeslots() throws IOException {
+        File instanceFile = new File("instances/" + this.instanceName + ".slo");
+        this.nTimeslots = Integer.parseInt(Files.readAllLines(instanceFile.toPath()).get(0).trim());
     }
 
     /**
@@ -149,5 +146,9 @@ public class Instance {
 
     public boolean[][] getP() {
         return P;
+    }
+
+    public int getnTimeslots() {
+        return nTimeslots;
     }
 }

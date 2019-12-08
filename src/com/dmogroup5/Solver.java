@@ -18,8 +18,15 @@ public class Solver {
         // TODO implement solver
         System.out.println("Solving " + instance.getInstanceName());
 
+        // Test reading exams
+        System.out.println("Number of exams: " + instance.getExams().length);
+
         // Test P matrix creation
-        System.out.println(Arrays.toString(this.instance.getP()[0]));
+        System.out.println("First row of the P matrix:\n" + Arrays.toString(this.instance.getP()[0]));
+
+        // Test nTimeslot reading
+        System.out.println("Number of timeslots in " + this.instance.getInstanceName() +
+                            ": " + this.instance.getnTimeslots());
 
         while (true) {
             Thread.sleep(3000);
