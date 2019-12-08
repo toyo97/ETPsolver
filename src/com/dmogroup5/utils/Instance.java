@@ -4,8 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Instance {
 
@@ -15,6 +14,7 @@ public class Instance {
     private int[] students;
     private int[] exams;
     private int nTimeslots;
+
     private boolean[][] P;
     
     private int[] currentSol;
@@ -67,15 +67,61 @@ public class Instance {
         for (int i = 0; i < nExams; i++) {
             this.exams[i] = numbers.get(i);
         }
+
+        Arrays.sort(this.exams);
     }
 
     /**
+     * NOTE: this implementation is NOT under the assumptions that every input element is of incremental
+     * value (even if the test instancese seem to be like that). For this reason the algorithm has to search
+     * through arrays `students` and `exams` for matching with IDs.
+     * If we can make the assumption that studID is in position studID-1 in the array,
+     * this implementation could be re-writed for more performance in input reading.
+     *
      * @return  Matrix of shape (nStudents, nExams). Element i,j is true if student i subscribed to exam j
      *          otherwise is false
      */
-    private boolean[][] readStudents(){
-        // TODO implement reading of `.stu` file
-        return this.P;
+    private void readStudents() throws IOException {
+        List<Integer> inputStudents = new ArrayList<>();
+        List<Integer> inputExams = new ArrayList<>();
+
+        File instanceFile = new File("instances/" + this.instanceName + ".stu");
+
+        for (String line : Files.readAllLines(instanceFile.toPath())) {
+            if (!line.equals("")) {
+                String[] lineValues = line.trim().split(" ");
+                inputStudents.add(Integer.valueOf(lineValues[0].substring(1)));
+                inputExams.add(Integer.valueOf(lineValues[1]));
+            }
+        }
+
+        // Create student set (to avoid duplicates from input)
+        Set<Integer> noDuplicates = new HashSet<>(inputStudents);
+        int nStudents = noDuplicates.size();
+        int nExams = this.exams.length;
+
+        // Create students array
+        this.students = new int[nStudents];
+        int k = 0;
+        for (Integer sID : noDuplicates) {
+            this.students[k++] = sID;
+        }
+
+        // Sort students array for better performance
+        Arrays.sort(this.students);
+
+        // Instantiate P matrix with input dimensions
+        // All elements are initialized to `false`
+        this.P = new boolean[nStudents][nExams];
+
+        // Create P matrix scanning exams array for matching
+        for (int i = 0; i < inputStudents.size(); i++) {
+            // binary search require additional time (maybe not relevant)
+            int studidx = Arrays.binarySearch(students, inputStudents.get(i));
+            int examidx = Arrays.binarySearch(exams, inputExams.get(i));
+
+            P[studidx][examidx] = true;
+        }
     }
 
     /**
@@ -99,5 +145,9 @@ public class Instance {
 
     public int[] getExams() {
         return exams;
+    }
+
+    public boolean[][] getP() {
+        return P;
     }
 }

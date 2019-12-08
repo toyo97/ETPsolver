@@ -2,6 +2,8 @@ package com.dmogroup5;
 
 import com.dmogroup5.utils.Instance;
 
+import java.util.Arrays;
+
 public class Solver {
 
     private Instance instance;
@@ -15,7 +17,10 @@ public class Solver {
     public void solve() throws InterruptedException {
         // TODO implement solver
         System.out.println("Solving " + instance.getInstanceName());
-        System.out.println(instance.getExams()[3]);
+
+        // Test P matrix creation
+        System.out.println(Arrays.toString(this.instance.getP()[0]));
+
         while (true) {
             Thread.sleep(3000);
             if (writeSolution() && this.verbose) {
