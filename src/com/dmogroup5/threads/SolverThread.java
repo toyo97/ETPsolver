@@ -16,8 +16,7 @@ public class SolverThread extends Thread {
         try {
             this.solver.solve();
         } catch (InterruptedException e) {
-            System.out.println("Thread interrupted");
-            e.printStackTrace();
+            System.out.println("Solver execution interrupted");
         }
     }
 }
