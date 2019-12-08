@@ -5,6 +5,8 @@ import com.dmogroup5.threads.SolverThread;
 import com.dmogroup5.utils.*;
 import org.apache.commons.cli.ParseException;
 
+import java.nio.file.Paths;
+
 public class Main {
 
     public static void main(String[] args) {

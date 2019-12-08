@@ -15,6 +15,7 @@ public class Solver {
     public void solve() throws InterruptedException {
         // TODO implement solver
         System.out.println("Solving " + instance.getInstanceName());
+        System.out.println(instance.getExams()[3]);
         while (true) {
             Thread.sleep(3000);
             if (writeSolution() && this.verbose) {

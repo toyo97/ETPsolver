@@ -1,5 +1,12 @@
 package com.dmogroup5.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Instance {
 
     private String instanceName;
@@ -34,18 +41,32 @@ public class Instance {
      * @return false if something went wrong, true otherwise
      */
     public boolean readInstance(){
-        this.readExams();
-        this.readStudents();
-        this.readNTimeslots();
-        // TODO implement
+        try {
+            this.readExams();
+            this.readStudents();
+            this.readNTimeslots();
+        } catch (IOException e) {
+            return false;
+        }
         return true;
     }
 
 
-    private void readExams(){
-        // TODO implement reading of `.exm` file
-        // sample values
-        this.exams = new int[10];
+    private void readExams() throws IOException {
+        List<Integer> numbers = new ArrayList<>();
+        File instanceFile = new File("instances/" + this.instanceName + ".exm");
+
+        for (String line : Files.readAllLines(instanceFile.toPath())) {
+            if (!line.equals("")) {
+                numbers.add(Integer.valueOf(line.trim().split(" ")[0]));
+            }
+        }
+        int nExams = numbers.size();
+        this.exams = new int[nExams];
+
+        for (int i = 0; i < nExams; i++) {
+            this.exams[i] = numbers.get(i);
+        }
     }
 
     /**
@@ -74,5 +95,9 @@ public class Instance {
 
     public String getInstanceName() {
         return instanceName;
+    }
+
+    public int[] getExams() {
+        return exams;
     }
 }
