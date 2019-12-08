@@ -2,6 +2,7 @@ package com.dmogroup5;
 
 import com.dmogroup5.utils.Instance;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Solver {
@@ -26,7 +27,11 @@ public class Solver {
 
         // Test nTimeslot reading
         System.out.println("Number of timeslots in " + this.instance.getInstanceName() +
-                            ": " + this.instance.getnTimeslots());
+                ": " + this.instance.getnTimeslots());
+
+        // Test N matrix creation
+        System.out.println("First row of the N matrix:\n" +
+                Arrays.toString(this.instance.getN()[0]));
 
         while (true) {
             Thread.sleep(3000);

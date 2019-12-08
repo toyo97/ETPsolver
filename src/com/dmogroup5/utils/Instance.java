@@ -11,7 +11,10 @@ public class Instance {
     private String instanceName;
     private String path;
 
+    // TODO check if students variable can be transformed to a local variable
+    //  (only exams and the N matrix are accessed outside)
     private int[] students;
+    private int nStudents;
     private int[] exams;
     private int nTimeslots;
 
@@ -19,7 +22,12 @@ public class Instance {
     // See `validate()` method
     private int[] subscriptions;
 
+    // Subscriptions matrix: P[i][j] = true if student in position i subscribed to exam in position j
     private boolean[][] P;
+
+    // Conflicts matrix: N[i][j] = # of conflicts between exam in position i and exam in position j
+    // shape: (nExams, nExams)
+    private int[][] N;
 
     /**
      * Class with reading/writing (I/O) utility functions
@@ -118,11 +126,11 @@ public class Instance {
 
         // Create student set (to avoid duplicates from input)
         Set<Integer> noDuplicates = new HashSet<>(inputStudents);
-        int nStudents = noDuplicates.size();
+        this.nStudents = noDuplicates.size();
         int nExams = this.exams.length;
 
         // Create students array
-        this.students = new int[nStudents];
+        this.students = new int[this.nStudents];
         int k = 0;
         for (Integer sID : noDuplicates) {
             this.students[k++] = sID;
@@ -133,7 +141,7 @@ public class Instance {
 
         // Instantiate P matrix with input dimensions
         // All elements are initialized to `false`
-        this.P = new boolean[nStudents][nExams];
+        this.P = new boolean[this.nStudents][nExams];
 
         // Create P matrix scanning exams array for matching
         for (int i = 0; i < inputStudents.size(); i++) {
@@ -143,6 +151,8 @@ public class Instance {
 
             P[studidx][examidx] = true;
         }
+
+        this.generateN();
     }
 
     private void readNTimeslots() throws IOException {
@@ -180,6 +190,37 @@ public class Instance {
         return !errorFound;
     }
 
+    /**
+     * Helper method, only used once in `readStudents()` method
+     *
+     * @return The N matrix defined above
+     */
+    private void generateN() {
+        int nExams = this.exams.length;
+        this.N = new int[nExams][nExams];
+
+        for (int i = 0; i < nExams; i++) {
+            for (int j = 0; j < nExams; j++) {
+                if (i != j) {
+                    this.N[i][j] = computeNConflicts(i, j);
+                }
+            }
+        }
+    }
+
+    // Helper method, computes conflicts between exam in position i and exam in position j using the P matrix
+    private int computeNConflicts(int i, int j) {
+        int nConflicts = 0;
+
+        for (int k = 0; k < this.nStudents; k++) {
+            boolean conflictFound = P[k][i] && P[k][j];
+            // if exams in i and j are in conflict for student in k, conflicts[k] takes 1, 0 ow
+            nConflicts += conflictFound ? 1 : 0;
+        }
+
+        return nConflicts;
+    }
+
     public String getInstanceName() {
         return instanceName;
     }
@@ -194,5 +235,9 @@ public class Instance {
 
     public int getnTimeslots() {
         return nTimeslots;
+    }
+
+    public int[][] getN() {
+        return N;
     }
 }
