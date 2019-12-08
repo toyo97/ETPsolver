@@ -16,10 +16,10 @@ public class Solver {
 
     public void solve() throws InterruptedException {
         // TODO implement solver
-        System.out.println("Solving " + instance.getInstanceName());
+        System.out.println("Solving " + this.instance.getInstanceName());
 
         // Test reading exams
-        System.out.println("Number of exams: " + instance.getExams().length);
+        System.out.println("Number of exams: " + this.instance.getExams().length);
 
         // Test P matrix creation
         System.out.println("First row of the P matrix:\n" + Arrays.toString(this.instance.getP()[0]));
