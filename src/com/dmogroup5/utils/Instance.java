@@ -35,37 +35,36 @@ public class Instance {
      * @param instanceName  Name of the instance without extension, e.g. 'instance01'
      * @param path          Path of the folder containing the instance files, default: current path
      */
-    public Instance(String instanceName, String path){
+    private Instance(String instanceName, String path){
         this.path = path;
         this.instanceName = instanceName;
     }
 
-    public Instance(String instanceName) {
+    private Instance(String instanceName) {
         this(instanceName, "absolute_path");
     }
 
 
     /**
      * Read all 3 instance files `.exm`, `.stu` and `.slo` and handle possible exceptions during reading
-     * Run validate on just read instance to check if data is inconsistent
+     * Run validate on the read instance to check if data is consistent. If it's not, print the error
+     * and returns an empty instance
      * 
-     * @return false if something went wrong, true otherwise
+     * @return the Instance object with all parameters set up if no errors are found in reading the files
      */
-    public boolean readInstance(){
-        try {
-            this.readExams();
-            this.readStudents();
-            this.readNTimeslots();
+    public static Instance readInstance(String instanceName, String path) throws IOException {
+        Instance instance = new Instance(instanceName, path);
 
-            if (!this.validate()) {
-                throw new IOException("Subscriptions to exams do not match, data may be wrong." +
-                        " Please check the instance files.");
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return false;
+
+        instance.readExams();
+        instance.readStudents();
+        instance.readNTimeslots();
+
+        if (!instance.validate()) {
+            throw new IOException("Subscriptions to exams do not match, data may be wrong." +
+                " Please check the instance files. Instance is not created");
         }
-        return true;
+        return instance;
     }
 
     /**

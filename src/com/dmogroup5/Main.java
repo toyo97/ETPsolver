@@ -5,6 +5,7 @@ import com.dmogroup5.threads.SolverThread;
 import com.dmogroup5.utils.*;
 import org.apache.commons.cli.ParseException;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 public class Main {
@@ -18,8 +19,8 @@ public class Main {
             params.parse();
 
             // Pass the name of the instance and read the files
-            Instance instance = new Instance(params.getInstanceName());
-            instance.readInstance();
+            // TODO check if path is needed (ask professor)
+            Instance instance = Instance.readInstance(params.getInstanceName(), "path");
 
             // Start the execution of the solver in a separate thread
             Solver solver = new Solver(instance, params.isDEBUG());
@@ -28,9 +29,10 @@ public class Main {
 
             // Wait for the requested timelim (converted in ms) and interrupt the execution of the solver
             Thread.sleep((long) (params.getTLIM() * 1000));
+            System.out.println("Time available elapsed!");
             solverThread.interrupt();
 
-        } catch (ParseException e) {
+        } catch (ParseException | IOException e) {
             System.out.println(e.getMessage());
         } catch (InterruptedException e) {
             e.printStackTrace();
