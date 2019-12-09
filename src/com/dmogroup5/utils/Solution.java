@@ -1,8 +1,6 @@
 package com.dmogroup5.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,15 +30,40 @@ public class Solution {
 
     public static Solution randomSolution(Instance instance) {
         Solution randSolution = new Solution(instance);
+        int nExams = randSolution.instance.getExams().length;
 
         // Generate a random permutation of exams (note: shuffledExams contain positions, NOT exam IDs)
         List<Integer> shuffledExams = new ArrayList<>();
-        for (int i = 0; i < randSolution.instance.getExams().length; i++) {
+        for (int i = 0; i < nExams; i++) {
             shuffledExams.add(i);
         }
         java.util.Collections.shuffle(shuffledExams);
 
-        // TODO continue implementation
+        int count = 0; // verify that all exams have been assigned to a timeslot
+        for (int i : shuffledExams) {
+            for (ArrayList<Integer> timeslot : randSolution.timetable) {
+                int l = 0;
+                boolean conflictFound = false;
+                // Scan for conflict in any exam in the current timeslot
+                while (l < timeslot.size() && !conflictFound) {
+                    int j = timeslot.get(l);
+                    conflictFound = randSolution.instance.getN()[i][j] > 0;
+                    l++;
+                }
+
+                if (!conflictFound) {
+                    timeslot.add(i);
+                    count ++;
+                    break;
+                }
+            }
+        }
+
+        if (count < nExams) {
+            System.out.println("EROOR: partial solution");
+        }
+
+        // TODO check feasibility and handle possible non-feasible solution
 
         return randSolution;
     }
