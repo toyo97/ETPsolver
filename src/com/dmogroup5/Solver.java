@@ -1,6 +1,7 @@
 package com.dmogroup5;
 
 import com.dmogroup5.utils.Instance;
+import com.dmogroup5.utils.Solution;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,11 @@ public class Solver {
         // Test N matrix creation
         System.out.println("First row of the N matrix:\n" +
                 Arrays.toString(this.instance.getN()[0]));
+
+        Solution solution = Solution.randomSolution(this.instance);
+        for (ArrayList timeslot: solution.getTimetable()) {
+            System.out.println(timeslot);
+        }
 
         while (true) {
             Thread.sleep(3000);

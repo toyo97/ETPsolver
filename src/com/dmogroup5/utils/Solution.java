@@ -12,7 +12,7 @@ public class Solution {
 
     // Note: timetable arrays contain the positions of the exams in the array `exams`, NOT the exams ID
     // This is done to avoid search in the `exams` array. Search is done only in input reading and solution writing
-    private ArrayList[] timetable;
+    private ArrayList<Integer>[] timetable;
     private Instance instance;
 
     /**
@@ -23,8 +23,8 @@ public class Solution {
     public Solution(Instance instance) {
         this.instance = instance;
         this.timetable = new ArrayList[instance.getnTimeslots()];
-        for (ArrayList slot : this.timetable) {
-            slot = new ArrayList<Integer>();
+        for (int i = 0; i < instance.getnTimeslots(); i++) {
+            this.timetable[i] = new ArrayList<Integer>();
         }
     }
 
@@ -60,7 +60,7 @@ public class Solution {
         }
 
         if (count < nExams) {
-            System.out.println("EROOR: partial solution");
+            System.out.println("ERROR: partial solution");
         }
 
         // TODO check feasibility and handle possible non-feasible solution
@@ -73,4 +73,8 @@ public class Solution {
 
     // TODO implement
     public boolean writeSolution() { return false; }
+
+    public ArrayList[] getTimetable() {
+        return timetable;
+    }
 }
