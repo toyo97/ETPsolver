@@ -55,7 +55,6 @@ public class Instance {
     public static Instance readInstance(String instanceName, String path) throws IOException {
         Instance instance = new Instance(instanceName, path);
 
-
         instance.readExams();
         instance.readStudents();
         instance.readNTimeslots();
@@ -199,7 +198,7 @@ public class Instance {
         this.N = new int[nExams][nExams];
 
         for (int i = 0; i < nExams; i++) {
-            for (int j = 0; j < nExams; j++) {
+            for (int j = i; j < nExams; j++) {
                 if (i != j) {
                     this.N[i][j] = computeNConflicts(i, j);
                 }
