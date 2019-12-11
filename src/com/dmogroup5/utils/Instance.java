@@ -82,7 +82,7 @@ public class Instance {
         for (String line : Files.readAllLines(instanceFile.toPath())) {
             if (!line.equals("")) {
                 String[] lineString = line.trim().split(" ");
-                examsList.add(Integer.valueOf(lineString[0]));
+                examsList.add(Integer.parseInt(lineString[0]));
                 subscriptionsList.add(Integer.parseInt(lineString[1]));
             }
         }
@@ -118,8 +118,8 @@ public class Instance {
         for (String line : Files.readAllLines(instanceFile.toPath())) {
             if (!line.equals("")) {
                 String[] lineValues = line.trim().split(" ");
-                inputStudents.add(Integer.valueOf(lineValues[0].substring(1)));
-                inputExams.add(Integer.valueOf(lineValues[1]));
+                inputStudents.add(Integer.parseInt(lineValues[0].substring(1)));
+                inputExams.add(Integer.parseInt(lineValues[1]));
             }
         }
 
@@ -238,5 +238,9 @@ public class Instance {
 
     public int[][] getN() {
         return N;
+    }
+
+    public int getnStudents() {
+        return nStudents;
     }
 }
