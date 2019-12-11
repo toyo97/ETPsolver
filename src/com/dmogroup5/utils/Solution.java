@@ -73,7 +73,6 @@ public class Solution {
         Solution randSolution = new Solution(instance);
         int nExams = randSolution.instance.getExams().length;
 
-        // Generate a random permutation of exams (note: shuffledExams contain positions, NOT exam IDs)
         List<Integer> shuffledExams = new ArrayList<>();
         for (int i = 0; i < nExams; i++) {
             shuffledExams.add(i);
@@ -147,7 +146,8 @@ public class Solution {
         for (int i = 0; i < nExams; i++) {
             for (int j = 0; j < this.timetable.length; j++) {
                 if (timetable[j].contains(i)) {
-                    T[i] = j;
+                    // TODO check if time-slot index starts from 1 or from 0
+                    T[i] = j + 1;  // assumed timeslot startingo from 0
                     break;
                 }
             }
