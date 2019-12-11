@@ -235,8 +235,11 @@ public class Instance {
         return nTimeslots;
     }
 
-    public int[][] getN() {
-        return N;
+    public int getNConflicts(int i, int j) {
+        if (i > j)
+            return this.N[j][i];
+        else
+            return this.N[i][j];
     }
 
     public int getnStudents() {

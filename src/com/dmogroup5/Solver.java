@@ -31,8 +31,7 @@ public class Solver {
                 ": " + this.instance.getnTimeslots());
 
         // Test N matrix creation
-        System.out.println("First row of the N matrix:\n" +
-                Arrays.toString(this.instance.getN()[0]));
+        System.out.println("Num of conflicts between exams 1,6 (IDs): " + this.instance.getNConflicts(5,0));
 
         Solution solution = null;
         int count = 0;
@@ -48,18 +47,11 @@ public class Solver {
 
         while (true) {
             Thread.sleep(3000);
-            if (writeSolution() && this.verbose) {
+            if (this.verbose) {
                 System.out.println("File written successfully");
             }
             System.out.println("3 seconds passed...");
         }
     }
 
-    /**
-     * @return  true if successful writing
-     */
-    private boolean writeSolution(){
-        // TODO implement solution output writing in `.sol` file
-        return true;
-    }
 }
