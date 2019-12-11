@@ -1,5 +1,7 @@
 package com.dmogroup5.utils;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +49,7 @@ public class Solution {
                 // Scan for conflict in any exam in the current timeslot
                 while (l < timeslot.size() && !conflictFound) {
                     int j = timeslot.get(l);
-                    conflictFound = randSolution.instance.getN()[i][j] > 0;
+                    conflictFound = randSolution.instance.getNConflicts(i, j) > 0;
                     l++;
                 }
 
@@ -87,7 +89,7 @@ public class Solution {
                 // Scan for conflict in any exam in the current timeslot
                 while (l < timeslot.size() && !conflictFound) {
                     int j = timeslot.get(l);
-                    conflictFound = randSolution.instance.getN()[i][j] > 0;
+                    conflictFound = randSolution.instance.getNConflicts(i,j) > 0;
                     l++;
                 }
 
@@ -112,7 +114,18 @@ public class Solution {
     public boolean checkFeasibility() { return false; }
 
     // TODO implement
-    public boolean writeSolution() { return false; }
+    public void writeSolution() throws IOException {
+        int[] T = this.computeT();
+        String line;
+        FileWriter fw = new FileWriter("solution.sol");
+
+        for (int i = 0; i < T.length; i++) {
+            line = this.instance.getExams()[i] + " " + T[i] + "\n";
+            fw.write(line);
+        }
+
+        fw.close();
+    }
 
     /**
      * @return objective function value of the solution
@@ -125,10 +138,10 @@ public class Solution {
 
         for (int i = 0; i < nExams; i++) {
             for (int j = i; j < nExams; j++) {
-                if (this.instance.getN()[i][j] > 0) {
+                if (this.instance.getNConflicts(i,j) > 0) {
                     int dist = Math.abs(T[i] - T[j]);
                     if (dist <= 5) {
-                       obj += Math.pow(2, 5 - dist) * this.instance.getN()[i][j] / this.instance.getnStudents();
+                       obj += Math.pow(2, 5 - dist) * this.instance.getNConflicts(i,j) / this.instance.getnStudents();
                     }
                 }
             }

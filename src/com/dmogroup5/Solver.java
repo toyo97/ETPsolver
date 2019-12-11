@@ -3,6 +3,7 @@ package com.dmogroup5;
 import com.dmogroup5.utils.Instance;
 import com.dmogroup5.utils.Solution;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -44,6 +45,12 @@ public class Solver {
             System.out.println(timeslot);
         }
         System.out.println("OBJ VALUE: " + solution.computeObj());
+
+        try {
+            solution.writeSolution();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         while (true) {
             Thread.sleep(3000);
