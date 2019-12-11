@@ -34,10 +34,17 @@ public class Solver {
         System.out.println("First row of the N matrix:\n" +
                 Arrays.toString(this.instance.getN()[0]));
 
-        Solution solution = Solution.randomSolution(this.instance);
+        Solution solution = null;
+        int count = 0;
+        while (solution == null) {
+            count += 1;
+            solution = Solution.randomSolution(this.instance);
+        }
+        System.out.println("Number of attempts before feasible solution: " + count);
         for (ArrayList timeslot: solution.getTimetable()) {
             System.out.println(timeslot);
         }
+        System.out.println("OBJ VALUE: " + solution.computeObj());
 
         while (true) {
             Thread.sleep(3000);
