@@ -72,42 +72,76 @@ public class Solution {
     }
 
     public static Solution weightedSolution(Instance instance) {
-        Solution randSolution = new Solution(instance);
-        int nExams = randSolution.instance.getExams().length;
-
-        List<Integer> shuffledExams = new ArrayList<>();
+        Solution weightedSolution = new Solution(instance);
+        int nExams = weightedSolution.instance.getExams().length;
+        ArrayList<Integer> candidateExams = new ArrayList<>(nExams);
         for (int i = 0; i < nExams; i++) {
-            shuffledExams.add(i);
+            candidateExams.add(i);
         }
-        java.util.Collections.shuffle(shuffledExams);
 
-        int count = 0; // verify that all exams have been assigned to a timeslot
-        for (int i : shuffledExams) {
-            for (ArrayList<Integer> timeslot : randSolution.timetable) {
-                int l = 0;
-                boolean conflictFound = false;
-                // Scan for conflict in any exam in the current timeslot
-                while (l < timeslot.size() && !conflictFound) {
-                    int j = timeslot.get(l);
-                    conflictFound = randSolution.instance.getNConflicts(i,j) > 0;
-                    l++;
+        boolean examAssigned = false;
+        do {
+            while (!candidateExams.isEmpty()) {
+                int i = weightedSolution.getNextExam(candidateExams);
+
+                examAssigned = false;
+                for (ArrayList<Integer> timeslot : weightedSolution.timetable) {
+                    int l = 0;
+                    boolean conflictFound = false;
+                    // Scan for conflict in any exam in the current timeslot
+                    while (l < timeslot.size() && !conflictFound) {
+                        int j = timeslot.get(l);
+                        conflictFound = weightedSolution.instance.getNConflicts(i, j) > 0;
+                        l++;
+                    }
+
+                    if (!conflictFound) {
+                        timeslot.add(i);
+                        examAssigned = true;
+                        break;
+                    }
                 }
 
-                if (!conflictFound) {
-                    timeslot.add(i);
-                    count ++;
+                if (!examAssigned) {
+                    System.out.println("ERROR: exam not assigned to any timeslot");
                     break;
                 }
             }
-        }
-
-        if (count < nExams) {
-            System.out.println("ERROR: partial solution");
-        }
+        } while (!examAssigned);
 
         // TODO check feasibility and handle possible non-feasible solution
 
-        return randSolution;
+        return weightedSolution;
+    }
+
+    private int getNextExam(ArrayList<Integer> candidateExams) {
+        int[] degree = new int[candidateExams.size()];
+        int max = 0;
+        int maxIdx = 0;
+        for (int i = 0; i < candidateExams.size(); i++) {
+            for (ArrayList<Integer> timeslot : this.timetable) {
+                // TODO extract function
+                for (int j: timeslot) {
+                    if (this.instance.getNConflicts(candidateExams.get(i), j) > 0) {
+                        degree[i] += 1;
+                        break;
+                    }
+                }
+            }
+            if (degree[i] > max) {
+                max = degree[i];
+                maxIdx = i;
+            }
+        }
+
+        ArrayList<Integer> maxIdxList = new ArrayList<>();
+        for (int i = 0; i < degree.length; i++) {
+            if (degree[i] == max)
+                maxIdxList.add(i);
+        }
+
+        int e = new Random().nextInt(maxIdxList.size());
+        return candidateExams.remove((int) maxIdxList.get(e));
     }
 
     // TODO implement
