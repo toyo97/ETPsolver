@@ -123,6 +123,7 @@ public class Instance {
         }
 
         // Create student set (to avoid duplicates from input)
+        // FIXME optimize this operation
         Set<Integer> noDuplicates = new HashSet<>(inputStudents);
         this.nStudents = noDuplicates.size();
         int nExams = this.exams.length;
@@ -141,11 +142,12 @@ public class Instance {
         // All elements are initialized to `false`
         this.P = new boolean[this.nStudents][nExams];
 
+        // FIXME large number of iteration
         // Create P matrix scanning exams array for matching
         for (int i = 0; i < inputStudents.size(); i++) {
             // binary search require additional time (maybe not relevant)
-            int studidx = Arrays.binarySearch(students, inputStudents.get(i));
-            int examidx = Arrays.binarySearch(exams, inputExams.get(i));
+            int studidx = Arrays.binarySearch(this.students, inputStudents.get(i));
+            int examidx = Arrays.binarySearch(this.exams, inputExams.get(i));
 
             P[studidx][examidx] = true;
         }
@@ -198,10 +200,14 @@ public class Instance {
         this.N = new int[nExams][nExams];
 
         for (int i = 0; i < nExams; i++) {
-            for (int j = i; j < nExams; j++) {
-                if (i != j) {
-                    this.N[i][j] = computeNConflicts(i, j);
+            for (int j = i + 1; j < nExams; j++) {
+                int nConflicts = 0;
+                for (int k = 0; k < this.nStudents; k++) {
+                    boolean conflictFound = P[k][i] && P[k][j];
+                    // if exams in i and j are in conflict for student in k, conflicts[k] takes 1, 0 ow
+                    nConflicts += conflictFound ? 1 : 0;
                 }
+                this.N[i][j] = nConflicts;
             }
         }
     }
