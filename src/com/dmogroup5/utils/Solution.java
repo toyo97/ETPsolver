@@ -2,8 +2,7 @@ package com.dmogroup5.utils;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class for a solution: the timetable variable contains every exam assigned for each time-slot (list of list),
@@ -204,5 +203,9 @@ public class Solution {
 
     public ArrayList[] getTimetable() {
         return timetable;
+    }
+
+    public Instance getInstance() {
+        return instance;
     }
 }

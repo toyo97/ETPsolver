@@ -1,5 +1,6 @@
 package com.dmogroup5;
 
+import com.dmogroup5.heuristics.Neighborhood;
 import com.dmogroup5.utils.Instance;
 import com.dmogroup5.utils.Solution;
 
@@ -38,7 +39,7 @@ public class Solver {
         int count = 0;
         while (solution == null) {
             count += 1;
-            solution = Solution.randomSolution(this.instance);
+            solution = Solution.weightedSolution(this.instance);
         }
         System.out.println("Number of attempts before feasible solution: " + count);
         for (ArrayList timeslot: solution.getTimetable()) {
@@ -46,19 +47,72 @@ public class Solver {
         }
         System.out.println("OBJ VALUE: " + solution.computeObj());
 
+        // *********** PARAMETERS ***********
+        // size of the population
+        // TODO use a pop size which is a function of the density of the instance
+        int POP_SIZE = 50;
+        // how many individuals (in percentage) are chosen from the population for generating children
+        double SEL_RATIO = 0.2;
+        // how many different neighborhood structures we want to explore for each parent
+        int N_NEIGH_STR = 4;
+
+        // ************ POPULATION GENERATION ************
+        Solution[] population = new Solution[POP_SIZE];
+
+        // generate the initial population and already write the best solution among all the individuals
+        int bestIdx = 0;
+        double bestF = Double.MAX_VALUE;
+        for (int i = 0; i < population.length; i++) {
+            population[i] = Solution.weightedSolution(this.instance);
+            double tempF = population[i].computeObj();
+            if (bestF > tempF) {
+                bestF = tempF;
+                bestIdx = i;
+            }
+        }
+        System.out.println("Best solution: " + bestF);
+
+        // take the best and output this first result
+        Solution bestSol = population[bestIdx];
         try {
-            solution.writeSolution();
+            bestSol.writeSolution();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // ************ MAIN LOOP ***********
         while (true) {
+            // select 20% (selection percentage/ratio) of the population individuals
+//            int[] parentsIdx = getSelIndividuals(POP_SIZE, SEL_RATIO);
+//
+//            Solution[] children =;
+//            for (int idx: parentsIdx){
+//                childNeighborhood.genImprovedSolution(population[idx], 0);
+//            }
+//            // write the current solution
+//            try {
+//                solution.writeSolution();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+
+
             Thread.sleep(3000);
             if (this.verbose) {
                 System.out.println("File written successfully");
             }
             System.out.println("3 seconds passed...");
         }
+    }
+    
+    private int[] getSelIndividuals(int popSize, double selRatio) {
+        int nSelected = (int) (popSize * selRatio);
+        int[] selected = new int[nSelected];
+        
+        // TODO implement
+        
+        return selected;
     }
 
 }
