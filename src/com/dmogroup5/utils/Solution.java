@@ -41,8 +41,8 @@ public class Solution {
         }
         java.util.Collections.shuffle(shuffledExams);
 
-        int count = 0; // verify that all exams have been assigned to a timeslot
         for (int i : shuffledExams) {
+            boolean examAssigned = false;
             for (ArrayList<Integer> timeslot : randSolution.timetable) {
                 int l = 0;
                 boolean conflictFound = false;
@@ -55,15 +55,15 @@ public class Solution {
 
                 if (!conflictFound) {
                     timeslot.add(i);
-                    count ++;
+                    examAssigned = true;
                     break;
                 }
             }
-        }
 
-        if (count < nExams) {
-            System.out.println("ERROR: partial solution");
-            return null;
+            if (!examAssigned) {
+                System.out.println("ERROR: exam not assigned to any timeslot");
+                return null;
+            }
         }
 
         // TODO check feasibility and handle possible non-feasible solution
