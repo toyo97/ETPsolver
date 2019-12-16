@@ -187,8 +187,8 @@ public class Solution {
         int nExams = this.instance.getExams().length;
         int[] T = this.computeT();
 
-        for (int i = 0; i < nExams; i++) {
-            for (int j = i; j < nExams; j++) {
+        for (int i = 0; i < nExams - 1; i++) {
+            for (int j = i + 1; j < nExams; j++) {
                 if (this.instance.getNConflicts(i,j) > 0) {
                     int dist = Math.abs(T[i] - T[j]);
                     if (dist <= 5) {
