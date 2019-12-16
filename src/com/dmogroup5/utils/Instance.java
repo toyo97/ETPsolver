@@ -9,13 +9,9 @@ public class Instance {
 
     private String instanceName;
 
-    // TODO check if students variable can be transformed to a local variable
-    //  (only exams and the N matrix are accessed outside)
     private int nStudents;
     private int[] exams;
     private int nTimeslots;
-
-    private ArrayList[] studentSubscriptions;
 
     // `subscriptions` variable is optional, it's used just to check the reading of the instance files
     // See `validate()` method
@@ -95,8 +91,6 @@ public class Instance {
      */
     // New implementation
     private void readStudents() throws IOException {
-        List<Integer> inputStudents = new ArrayList<>();
-        List<Integer> inputExams = new ArrayList<>();
 
         File instanceFile = new File("instances/" + this.instanceName + ".stu");
 
