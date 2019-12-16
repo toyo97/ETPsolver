@@ -29,57 +29,70 @@ public class Solution {
         }
     }
 
-    public static Solution randomSolution(Instance instance) {
-        Solution randSolution = new Solution(instance);
-        int nExams = randSolution.instance.getExams().length;
+//    public static Solution randomSolution(Instance instance) {
+//        Solution randSolution = new Solution(instance);
+//        int nExams = randSolution.instance.getExams().length;
+//
+//        // Generate a random permutation of exams (note: shuffledExams contain positions, NOT exam IDs)
+//        List<Integer> shuffledExams = new ArrayList<>();
+//        for (int i = 0; i < nExams; i++) {
+//            shuffledExams.add(i);
+//        }
+//        java.util.Collections.shuffle(shuffledExams);
+//
+//        for (int i : shuffledExams) {
+//            boolean examAssigned = false;
+//            for (ArrayList<Integer> timeslot : randSolution.timetable) {
+//                int l = 0;
+//                boolean conflictFound = false;
+//                // Scan for conflict in any exam in the current timeslot
+//                while (l < timeslot.size() && !conflictFound) {
+//                    int j = timeslot.get(l);
+//                    conflictFound = randSolution.instance.getNConflicts(i, j) > 0;
+//                    l++;
+//                }
+//
+//                if (!conflictFound) {
+//                    timeslot.add(i);
+//                    examAssigned = true;
+//                    break;
+//                }
+//            }
+//
+//            if (!examAssigned) {
+//                System.out.println("ERROR: exam not assigned to any timeslot");
+//                return null;
+//            }
+//        }
+//
+//        // TODO check feasibility and handle possible non-feasible solution
+//
+//        return randSolution;
+//    }
 
-        // Generate a random permutation of exams (note: shuffledExams contain positions, NOT exam IDs)
-        List<Integer> shuffledExams = new ArrayList<>();
-        for (int i = 0; i < nExams; i++) {
-            shuffledExams.add(i);
-        }
-        java.util.Collections.shuffle(shuffledExams);
-
-        for (int i : shuffledExams) {
-            boolean examAssigned = false;
-            for (ArrayList<Integer> timeslot : randSolution.timetable) {
-                int l = 0;
-                boolean conflictFound = false;
-                // Scan for conflict in any exam in the current timeslot
-                while (l < timeslot.size() && !conflictFound) {
-                    int j = timeslot.get(l);
-                    conflictFound = randSolution.instance.getNConflicts(i, j) > 0;
-                    l++;
-                }
-
-                if (!conflictFound) {
-                    timeslot.add(i);
-                    examAssigned = true;
-                    break;
-                }
-            }
-
-            if (!examAssigned) {
-                System.out.println("ERROR: exam not assigned to any timeslot");
-                return null;
-            }
-        }
-
-        // TODO check feasibility and handle possible non-feasible solution
-
-        return randSolution;
-    }
-
-    public static Solution weightedSolution(Instance instance) {
-        Solution weightedSolution = new Solution(instance);
-        int nExams = weightedSolution.instance.getExams().length;
-        ArrayList<Integer> candidateExams = new ArrayList<>(nExams);
-        for (int i = 0; i < nExams; i++) {
-            candidateExams.add(i);
-        }
+    /**
+     * Generate a feasible initial solution using the saturation degree ordering
+     * (or any order provided by the getNextExam() function)
+     *
+     * @param instance  current instance
+     * @return          feasible complete solution
+     */
+    public static Solution weightedSolution(Instance instance) throws Exception {
+        Solution weightedSolution = null;
+        ArrayList<Integer> candidateExams;
 
         boolean examAssigned = false;
-        do {
+        // Outer loop goes until a complete solution is found (i.e. all exams assigned to exactly one time-slot
+        // If the randomness takes to a partial solution, restart the algorithm
+        while (!examAssigned) {
+
+            weightedSolution = new Solution(instance);
+            int nExams = weightedSolution.instance.getExams().length;
+            candidateExams = new ArrayList<>(nExams);
+            for (int i = 0; i < nExams; i++) {
+                candidateExams.add(i);
+            }
+
             while (!candidateExams.isEmpty()) {
                 int i = weightedSolution.getNextExam(candidateExams);
 
@@ -106,17 +119,23 @@ public class Solution {
                     break;
                 }
             }
-        } while (!examAssigned);
+        }
 
         // TODO check feasibility and handle possible non-feasible solution
 
         return weightedSolution;
     }
 
-    private int getNextExam(ArrayList<Integer> candidateExams) {
+    /**
+     * Saturation degree ordering: exams with less available time-slots are assigned first.
+     * Ties are resolved with random picking.
+     *
+     * @param candidateExams    list of exams remained to be assigned
+     * @return                  index of the chosen exam
+     */
+    private int getNextExam(ArrayList<Integer> candidateExams) throws Exception {
         int[] degree = new int[candidateExams.size()];
         int max = 0;
-        int maxIdx = 0;
         for (int i = 0; i < candidateExams.size(); i++) {
             for (ArrayList<Integer> timeslot : this.timetable) {
                 // TODO extract function
@@ -129,7 +148,6 @@ public class Solution {
             }
             if (degree[i] > max) {
                 max = degree[i];
-                maxIdx = i;
             }
         }
 
