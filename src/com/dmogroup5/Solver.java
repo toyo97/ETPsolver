@@ -18,7 +18,11 @@ public class Solver {
         this.verbose = verbose;
     }
 
-    public void solve() throws InterruptedException {
+
+    /**
+     * @throws Exception caused mainly if an exam is compared to itself in the N matrix
+     */
+    public void solve() throws Exception {
         // TODO implement solver
         System.out.println("Solving " + this.instance.getInstanceName());
 

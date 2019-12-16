@@ -309,11 +309,13 @@ public class Instance {
         return nTimeslots;
     }
 
-    public int getNConflicts(int i, int j) {
+    public int getNConflicts(int i, int j) throws Exception {
         if (i > j)
             return this.N[j][i];
-        else
+        else if (i < j)
             return this.N[i][j];
+        else
+            throw new Exception("Exam " + i + " has been compared with itself!");
     }
 
     public int getnStudents() {

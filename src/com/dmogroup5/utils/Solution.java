@@ -181,7 +181,7 @@ public class Solution {
     /**
      * @return objective function value of the solution
      */
-    public double computeObj() {
+    public double computeObj() throws Exception {
         double obj = 0;
 
         int nExams = this.instance.getExams().length;
