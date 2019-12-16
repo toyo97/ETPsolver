@@ -18,6 +18,8 @@ public class Instance {
     private int[] exams;
     private int nTimeslots;
 
+    private ArrayList[] studentSubscriptions;
+
     // `subscriptions` variable is optional, it's used just to check the reading of the instance files
     // See `validate()` method
     private int[] subscriptions;
@@ -27,6 +29,7 @@ public class Instance {
 
     // Conflicts matrix: N[i][j] = # of conflicts between exam in position i and exam in position j
     // shape: (nExams, nExams)
+    private int[][] oldN;
     private int[][] N;
 
     /**
@@ -57,12 +60,20 @@ public class Instance {
 
         instance.readExams();
         instance.readStudents();
+//        instance.readStudentsOld();
         instance.readNTimeslots();
 
-        if (!instance.validate()) {
-            throw new IOException("Subscriptions to exams do not match, data may be wrong." +
-                " Please check the instance files. Instance is not created");
-        }
+//        if (instance.test_generateN()) {
+//            System.out.println("OK! Test passed!");
+//        }
+//        else {
+//            System.out.println("ERROR! New N matrix is wrong");
+//        }
+
+//        if (!instance.validate()) {
+//            throw new IOException("Subscriptions to exams do not match, data may be wrong." +
+//                " Please check the instance files. Instance is not created");
+//        }
         return instance;
     }
 
@@ -108,7 +119,7 @@ public class Instance {
      * If we can make the assumption that studID is in position studID-1 in the array,
      * this implementation could be re-writed for more performance in input reading.
      */
-    private void readStudents() throws IOException {
+    private void readStudentsOld() throws IOException {
         List<Integer> inputStudents = new ArrayList<>();
         List<Integer> inputExams = new ArrayList<>();
 
@@ -155,6 +166,98 @@ public class Instance {
         this.generateN();
     }
 
+    // New implementation
+    private void readStudents() throws IOException {
+        List<Integer> inputStudents = new ArrayList<>();
+        List<Integer> inputExams = new ArrayList<>();
+
+        File instanceFile = new File("instances/" + this.instanceName + ".stu");
+
+        Map<Integer, ArrayList<Integer>> studentSubscriptions = new HashMap<>();
+
+        for (String line : Files.readAllLines(instanceFile.toPath())) {
+            if (!line.equals("")) {
+                String[] lineValues = line.trim().split(" ");
+                int sID = Integer.parseInt(lineValues[0].substring(1));
+                int eID = Integer.parseInt(lineValues[1]);
+                if (studentSubscriptions.containsKey(sID)) {
+                    studentSubscriptions.get(sID).add(eID);
+                }
+                else {
+                    studentSubscriptions.put(sID, new ArrayList<>());
+                    studentSubscriptions.get(sID).add(eID);
+                }
+            }
+        }
+
+        this.nStudents = studentSubscriptions.size();
+
+        // N matrix generation
+        int nExams = this.exams.length;
+        this.N = new int[nExams][nExams];
+
+        for (ArrayList<Integer> subscriptions : studentSubscriptions.values()) {
+            for (int i = 0; i < subscriptions.size() - 1; i++) {
+                for (int j = i + 1; j < subscriptions.size(); j++) {
+                    int ei = Arrays.binarySearch(this.exams, subscriptions.get(i));
+                    int ej = Arrays.binarySearch(this.exams, subscriptions.get(j));
+                    if (ei < ej) {
+                        this.N[ei][ej] += 1;
+                    } else {
+                        this.N[ej][ei] += 1;
+                    }
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Helper method, only used once in `readStudents()` method
+     *
+     * @return The N matrix defined above
+     */
+    private void generateN() {
+        int nExams = this.exams.length;
+        this.oldN = new int[nExams][nExams];
+
+        for (int i = 0; i < nExams; i++) {
+            for (int j = i + 1; j < nExams; j++) {
+                int nConflicts = 0;
+                for (int k = 0; k < this.nStudents; k++) {
+                    boolean conflictFound = P[k][i] && P[k][j];
+                    // if exams in i and j are in conflict for student in k, conflicts[k] takes 1, 0 ow
+                    nConflicts += conflictFound ? 1 : 0;
+                }
+                this.oldN[i][j] = nConflicts;
+            }
+        }
+    }
+
+    // Helper method, computes conflicts between exam in position i and exam in position j using the P matrix
+    private int computeNConflicts(int i, int j) {
+        int nConflicts = 0;
+
+        for (int k = 0; k < this.nStudents; k++) {
+            boolean conflictFound = P[k][i] && P[k][j];
+            // if exams in i and j are in conflict for student in k, conflicts[k] takes 1, 0 ow
+            nConflicts += conflictFound ? 1 : 0;
+        }
+
+        return nConflicts;
+    }
+
+    private boolean test_generateN() {
+        for (int i = 0; i < this.N.length; i++) {
+            for (int j = 0; j < this.N[0].length; j++) {
+                if (this.N[i][j] != this.oldN[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private void readNTimeslots() throws IOException {
         File instanceFile = new File("instances/" + this.instanceName + ".slo");
         this.nTimeslots = Integer.parseInt(Files.readAllLines(instanceFile.toPath()).get(0).trim());
@@ -188,41 +291,6 @@ public class Instance {
         }
 
         return !errorFound;
-    }
-
-    /**
-     * Helper method, only used once in `readStudents()` method
-     *
-     * @return The N matrix defined above
-     */
-    private void generateN() {
-        int nExams = this.exams.length;
-        this.N = new int[nExams][nExams];
-
-        for (int i = 0; i < nExams; i++) {
-            for (int j = i + 1; j < nExams; j++) {
-                int nConflicts = 0;
-                for (int k = 0; k < this.nStudents; k++) {
-                    boolean conflictFound = P[k][i] && P[k][j];
-                    // if exams in i and j are in conflict for student in k, conflicts[k] takes 1, 0 ow
-                    nConflicts += conflictFound ? 1 : 0;
-                }
-                this.N[i][j] = nConflicts;
-            }
-        }
-    }
-
-    // Helper method, computes conflicts between exam in position i and exam in position j using the P matrix
-    private int computeNConflicts(int i, int j) {
-        int nConflicts = 0;
-
-        for (int k = 0; k < this.nStudents; k++) {
-            boolean conflictFound = P[k][i] && P[k][j];
-            // if exams in i and j are in conflict for student in k, conflicts[k] takes 1, 0 ow
-            nConflicts += conflictFound ? 1 : 0;
-        }
-
-        return nConflicts;
     }
 
     public String getInstanceName() {

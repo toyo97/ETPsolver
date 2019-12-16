@@ -26,7 +26,7 @@ public class Solver {
         System.out.println("Number of exams: " + this.instance.getExams().length);
 
         // Test P matrix creation
-        System.out.println("First row of the P matrix:\n" + Arrays.toString(this.instance.getP()[0]));
+//        System.out.println("First row of the P matrix:\n" + Arrays.toString(this.instance.getP()[0]));
 
         // Test nTimeslot reading
         System.out.println("Number of timeslots in " + this.instance.getInstanceName() +
