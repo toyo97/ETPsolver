@@ -1,12 +1,12 @@
 package com.dmogroup5;
 
-import com.dmogroup5.heuristics.Neighborhood;
+import com.dmogroup5.heuristics.GeneticAlgorithms;
+import com.dmogroup5.heuristics.LocalSearch;
 import com.dmogroup5.utils.Instance;
 import com.dmogroup5.utils.Solution;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Solver {
 
@@ -59,6 +59,8 @@ public class Solver {
         double SEL_RATIO = 0.2;
         // how many different neighborhood structures we want to explore for each parent
         int N_NEIGH_STR = 4;
+        // genetic mutation ratio (see class GeneticAlgorithms for more details)
+        double MUTATION_RATIO = 0.2;
 
         // ************ POPULATION GENERATION ************
         Solution[] population = new Solution[POP_SIZE];
@@ -87,18 +89,26 @@ public class Solver {
         // ************ MAIN LOOP ***********
         while (true) {
             // select 20% (selection percentage/ratio) of the population individuals
-//            int[] parentsIdx = getSelIndividuals(POP_SIZE, SEL_RATIO);
-//
-//            Solution[] children =;
-//            for (int idx: parentsIdx){
-//                childNeighborhood.genImprovedSolution(population[idx], 0);
-//            }
-//            // write the current solution
-//            try {
-//                solution.writeSolution();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            int nSelected = (int) (POP_SIZE * SEL_RATIO);
+            int[] parentsIdx = getSelIndividuals(nSelected);
+
+            Solution[] children = new Solution[nSelected];
+            for (int idx: parentsIdx){
+                // ****** MUTATION ******
+                children[idx] = GeneticAlgorithms.mutate(population[idx], MUTATION_RATIO);
+
+                // ****** LOCAL SEARCH ******
+                // find the first improvement in the neighborhood for every structure
+                for (LocalSearch.NeighStructures k: LocalSearch.NeighStructures.values()){
+                    children[k.ordinal()] = LocalSearch.genImprovedSolution(population[idx], k);
+                }
+            }
+            // write the current solution
+            try {
+                solution.writeSolution();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
 
@@ -110,8 +120,7 @@ public class Solver {
         }
     }
     
-    private int[] getSelIndividuals(int popSize, double selRatio) {
-        int nSelected = (int) (popSize * selRatio);
+    private int[] getSelIndividuals(int nSelected) {
         int[] selected = new int[nSelected];
         
         // TODO implement
