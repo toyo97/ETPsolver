@@ -15,6 +15,7 @@ public class Solution {
     // This is done to avoid search in the `exams` array. Search is done only in input reading and solution writing
     private ArrayList<Integer>[] timetable;
     private Instance instance;
+    private double fitness;
 
     /**
      * Generates an empty solution
@@ -22,6 +23,7 @@ public class Solution {
      * @param instance The instance which can provide the number of time-slots and many useful data
      */
     public Solution(Instance instance) {
+        this.fitness = Double.MAX_VALUE;
         this.instance = instance;
         this.timetable = new ArrayList[instance.getnTimeslots()];
         for (int i = 0; i < instance.getnTimeslots(); i++) {
@@ -191,9 +193,17 @@ public class Solution {
     }
 
     /**
-     * @return objective function value of the solution
+     * @return objective function value of the solution (lazy-load implementation)
      */
-    public double computeObj() throws Exception {
+    public double getFitness() throws Exception {
+
+        if (this.fitness == Double.MAX_VALUE) {
+            this.fitness = this.computeObj();
+        }
+        return this.fitness;
+    }
+
+    private double computeObj() throws Exception {
         double obj = 0;
 
         int nExams = this.instance.getExams().length;
@@ -204,7 +214,7 @@ public class Solution {
                 if (this.instance.getNConflicts(i,j) > 0) {
                     int dist = Math.abs(T[i] - T[j]);
                     if (dist <= 5) {
-                       obj += Math.pow(2, 5 - dist) * this.instance.getNConflicts(i,j) / this.instance.getnStudents();
+                        obj += Math.pow(2, 5 - dist) * this.instance.getNConflicts(i,j) / this.instance.getnStudents();
                     }
                 }
             }
