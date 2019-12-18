@@ -49,16 +49,16 @@ public class Solver {
         for (ArrayList timeslot: solution.getTimetable()) {
             System.out.println(timeslot);
         }
-        System.out.println("OBJ VALUE: " + solution.computeObj());
+        System.out.println("OBJ VALUE: " + solution.getFitness());
 
         // *********** PARAMETERS ***********
         // size of the population
         // TODO use a pop size which is a function of the density of the instance
-        int POP_SIZE = 50;
+        int POP_SIZE = 10;
         // how many individuals (in percentage) are chosen from the population for generating children
         double SEL_RATIO = 0.2;
         // how many different neighborhood structures we want to explore for each parent
-        int N_NEIGH_STR = 4;
+        int N_NEIGH_STR = LocalSearch.NeighStructures.values().length;
         // genetic mutation ratio (see class GeneticAlgorithms for more details)
         double MUTATION_RATIO = 0.2;
 
@@ -67,16 +67,13 @@ public class Solver {
 
         // generate the initial population and already write the best solution among all the individuals
         int bestIdx = 0;
-        double bestF = Double.MAX_VALUE;
         for (int i = 0; i < population.length; i++) {
             population[i] = Solution.weightedSolution(this.instance, true);
-            double tempF = population[i].computeObj();
-            if (bestF > tempF) {
-                bestF = tempF;
+            if (population[bestIdx].getFitness() > population[i].getFitness()) {
                 bestIdx = i;
             }
         }
-        System.out.println("Best solution: " + bestF);
+        System.out.println("Best solution: " + population[bestIdx].getFitness());
 
         // take the best and output this first result
         Solution bestSol = population[bestIdx];
@@ -98,10 +95,25 @@ public class Solver {
                 children[idx] = GeneticAlgorithms.mutate(population[idx], MUTATION_RATIO);
 
                 // ****** LOCAL SEARCH ******
-                // find the first improvement in the neighborhood for every structure
-                for (LocalSearch.NeighStructures k: LocalSearch.NeighStructures.values()){
-                    children[k.ordinal()] = LocalSearch.genImprovedSolution(population[idx], k);
+                // Find the first improvement or just one new
+                // solution in the neighborhood for every structure (called twins)
+                // Then put the best between the `k` twins in the pool (as a child)
+                Solution[] twins = new Solution[N_NEIGH_STR];
+
+                double twinsBestF = Double.MAX_VALUE;
+                int bestTwinIdx = 0;
+
+                for (LocalSearch.NeighStructures k: LocalSearch.NeighStructures.values()) {
+
+                    twins[k.ordinal()] = LocalSearch.genImprovedSolution(children[idx], k);
+                    double tmpScore = twins[k.ordinal()].getFitness();
+                    if (tmpScore < twinsBestF) {
+                        twinsBestF = tmpScore;
+                        bestTwinIdx = k.ordinal();
+                    }
                 }
+
+                children[idx] = twins[bestTwinIdx];
             }
             // write the current solution
             try {

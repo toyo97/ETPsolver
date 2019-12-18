@@ -13,6 +13,7 @@ public class LocalSearch {
         N6 // Same as N5 but with 20%
     }
 
+    // TODO implement both with first improvement and first new solution
     public static Solution genImprovedSolution(Solution oldSolution, NeighStructures neighStruct) {
         Solution newSolution;
 
