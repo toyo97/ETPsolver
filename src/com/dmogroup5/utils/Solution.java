@@ -74,10 +74,12 @@ public class Solution {
      * Generate a feasible initial solution using the saturation degree ordering
      * (or any order provided by the getNextExam() function)
      *
-     * @param instance  current instance
-     * @return          feasible complete solution
+     * @param instance      current instance
+     * @param randTimetable if true, the order of the examined timeslots for assignment is randomized
+     *                      (produces more valuable solutions but `miss` is more frequent)
+     * @return              feasible complete solution
      */
-    public static Solution weightedSolution(Instance instance) throws Exception {
+    public static Solution weightedSolution(Instance instance, boolean randTimetable) throws Exception {
         Solution weightedSolution = null;
         ArrayList<Integer> candidateExams;
 
@@ -97,7 +99,12 @@ public class Solution {
                 int i = weightedSolution.getNextExam(candidateExams);
 
                 examAssigned = false;
-                for (ArrayList<Integer> timeslot : weightedSolution.timetable) {
+                // TODO try with random ordering of timeslot and test the `miss` frequency
+                List<ArrayList<Integer>> timetableList = Arrays.asList(weightedSolution.timetable);
+                if (randTimetable) {
+                    Collections.shuffle(timetableList);
+                }
+                for (ArrayList<Integer> timeslot : timetableList) {
                     int l = 0;
                     boolean conflictFound = false;
                     // Scan for conflict in any exam in the current timeslot
@@ -125,6 +132,11 @@ public class Solution {
 
         return weightedSolution;
     }
+
+    public static Solution weightedSolution(Instance instance) throws Exception {
+        return weightedSolution(instance, false);
+    }
+
 
     /**
      * Saturation degree ordering: exams with less available time-slots are assigned first.

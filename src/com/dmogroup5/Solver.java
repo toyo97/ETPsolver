@@ -43,7 +43,7 @@ public class Solver {
         int count = 0;
         while (solution == null) {
             count += 1;
-            solution = Solution.weightedSolution(this.instance);
+            solution = Solution.weightedSolution(this.instance, true);
         }
         System.out.println("Number of attempts before feasible solution: " + count);
         for (ArrayList timeslot: solution.getTimetable()) {
@@ -69,7 +69,7 @@ public class Solver {
         int bestIdx = 0;
         double bestF = Double.MAX_VALUE;
         for (int i = 0; i < population.length; i++) {
-            population[i] = Solution.weightedSolution(this.instance);
+            population[i] = Solution.weightedSolution(this.instance, true);
             double tempF = population[i].computeObj();
             if (bestF > tempF) {
                 bestF = tempF;
