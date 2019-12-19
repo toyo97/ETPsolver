@@ -8,18 +8,14 @@ import java.util.*;
 public class Instance {
 
     private String instanceName;
+    private String directory;
 
     private int nStudents;
     private int[] exams;
     private int nTimeslots;
 
-    // `subscriptions` variable is optional, it's used just to check the reading of the instance files
-    // See `validate()` method
-    private int[] subscriptions;
-
     // Conflicts matrix: N[i][j] = # of conflicts between exam in position i and exam in position j
     // shape: (nExams, nExams)
-    private int[][] oldN;
     private int[][] N;
 
     /**
@@ -27,10 +23,28 @@ public class Instance {
      *
      * @param instanceName  Name of the instance without extension, e.g. 'instance01'
      */
-    private Instance(String instanceName){
+    private Instance(String instanceName, String directory) {
         this.instanceName = instanceName;
+
+        if (directory.endsWith("/")) {
+            this.directory = directory;
+        } else {
+            this.directory = directory + "/";
+        }
     }
 
+
+    /**
+     * Read all 3 instance files `.exm`, `.stu` and `.slo` and handle possible exceptions during reading
+     * Run validate on the read instance to check if data is consistent. If it's not, print the error
+     * and returns an empty instance
+     *
+     * @return the Instance object with all parameters set up if no errors are found in reading the files
+ * @param instanceName
+     */
+    public static Instance readInstance(String instanceName) throws IOException {
+        return readInstance(instanceName, "");
+    }
 
     /**
      * Read all 3 instance files `.exm`, `.stu` and `.slo` and handle possible exceptions during reading
@@ -39,8 +53,8 @@ public class Instance {
      * 
      * @return the Instance object with all parameters set up if no errors are found in reading the files
      */
-    public static Instance readInstance(String instanceName, String path) throws IOException {
-        Instance instance = new Instance(instanceName);
+    public static Instance readInstance(String instanceName, String directory) throws IOException {
+        Instance instance = new Instance(instanceName, directory);
 
         instance.readExams();
         instance.readStudents();
@@ -59,7 +73,7 @@ public class Instance {
         List<Integer> examsList = new ArrayList<>();
         List<Integer> subscriptionsList = new ArrayList<>();
 
-        File instanceFile = new File("instances/" + this.instanceName + ".exm");
+        File instanceFile = new File( this.directory + this.instanceName + ".exm");
 
         for (String line : Files.readAllLines(instanceFile.toPath())) {
             if (!line.equals("")) {
@@ -71,11 +85,9 @@ public class Instance {
 
         int nExams = examsList.size();
         this.exams = new int[nExams];
-        this.subscriptions = new int[nExams];
 
         for (int i = 0; i < nExams; i++) {
             this.exams[i] = examsList.get(i);
-            this.subscriptions[i] = subscriptionsList.get(i);
         }
 
         Arrays.sort(this.exams);
@@ -92,7 +104,7 @@ public class Instance {
     // New implementation
     private void readStudents() throws IOException {
 
-        File instanceFile = new File("instances/" + this.instanceName + ".stu");
+        File instanceFile = new File(this.directory + this.instanceName + ".stu");
 
         Map<Integer, ArrayList<Integer>> studentSubscriptions = new HashMap<>();
 
@@ -134,7 +146,7 @@ public class Instance {
     }
 
     private void readNTimeslots() throws IOException {
-        File instanceFile = new File("instances/" + this.instanceName + ".slo");
+        File instanceFile = new File(this.directory + this.instanceName + ".slo");
         this.nTimeslots = Integer.parseInt(Files.readAllLines(instanceFile.toPath()).get(0).trim());
     }
 
@@ -158,13 +170,17 @@ public class Instance {
      * @return  the number of students subscribed both to exams in position i and j
      * @throws Exception    if i equals j, the algorithm is probably wrong. An exam should not be compared with itself
      */
-    public int getNConflicts(int i, int j) throws Exception {
+    public int getNConflicts(int i, int j) {
         if (i > j)
             return this.N[j][i];
         else if (i < j)
             return this.N[i][j];
-        else
-            throw new Exception("Exam " + i + " has been compared with itself!");
+        else {
+            System.out.println("WARNING: an exam has been compared to itself, " +
+                    "you might have put it twice in the timetable");
+            return Integer.MAX_VALUE;
+        }
+//            throw new Exception("Exam " + i + " has been compared with itself!");
     }
 
     public int getnStudents() {

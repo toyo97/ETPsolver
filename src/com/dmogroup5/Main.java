@@ -6,7 +6,6 @@ import com.dmogroup5.utils.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 public class Main {
 
@@ -19,8 +18,7 @@ public class Main {
             params.parse();
 
             // Pass the name of the instance and read the files
-            // TODO check if path is needed (ask professor)
-            Instance instance = Instance.readInstance(params.getInstanceName(), "path");
+            Instance instance = Instance.readInstance(params.getInstanceName());
 
             // Start the execution of the solver in a separate thread
             Solver solver = new Solver(instance, params.isDEBUG());

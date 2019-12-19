@@ -1,16 +1,14 @@
 package com.dmogroup5.heuristics;
 
 import com.dmogroup5.utils.Solution;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 public class GeneticAlgorithms {
 
     /**
-     * Courses are chosen at random from any point in the timetable and are reallocated
-     * to the earliest (after that point) feasible timeslots
+     * A percentage of the total courses are chosen at random from any point in the timetable and are reallocated
+     * to the earliest (after that point) feasible time slots
      *
      * @param parent    starting solution
      * @param ratio     percentage of the course to be reassigned

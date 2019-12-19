@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class Solver {
 
@@ -26,7 +25,6 @@ public class Solver {
      * @throws Exception caused mainly if an exam is compared to itself in the N matrix
      */
     public void solve() throws Exception {
-        // TODO implement solver
         System.out.println("Solving " + this.instance.getInstanceName());
 
         // Test reading exams
@@ -57,7 +55,7 @@ public class Solver {
         // *********** PARAMETERS ***********
         // size of the population
         // TODO use a pop size which is a function of the density of the instance
-        int POP_SIZE = 10;
+        int POP_SIZE = 30;
         // how many individuals (in percentage) are chosen from the population for generating children
         double SEL_RATIO = 0.2;
         // how many different neighborhood structures we want to explore for each parent
@@ -75,7 +73,7 @@ public class Solver {
 
         // ************ MAIN LOOP ***********
         int it = 0;
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             // ****** BEST SOLUTION PRINTOUT ******
             int bestIdx = 0;
             for (int i = 0; i < population.length; i++) {
@@ -99,14 +97,15 @@ public class Solver {
             // ****** CANDIDATES SELECTION ******
             // select 20% (selection percentage/ratio) of the population individuals
             int nSelected = (int) (POP_SIZE * SEL_RATIO);
-            int[] parentsIdx = new Random().ints(nSelected, 0, POP_SIZE).toArray();
+            // TODO see what's better
+//            int[] parentsIdx = new Random().ints(nSelected, 0, POP_SIZE).toArray();
+            Solution[] parents = GeneticAlgorithms.rouletteWheelSelection(Arrays.asList(population), nSelected);
 
             Solution[] children = new Solution[nSelected];
             for (int i = 0; i < nSelected; i++) {
-                int idx = parentsIdx[i];
 
                 // ****** MUTATION ******
-                children[i] = GeneticAlgorithms.mutate(population[idx], MUTATION_RATIO);
+                children[i] = GeneticAlgorithms.mutateSolution(parents[i], MUTATION_RATIO);
 
                 // ****** LOCAL SEARCH ******
                 // Find the first improvement or just one new
@@ -135,9 +134,10 @@ public class Solver {
             List<Solution> pool = new ArrayList<>(Arrays.asList(population));
             pool.addAll(Arrays.asList(children));
 
-            population = GeneticAlgorithms.rouletteWheelSelection(pool, POP_SIZE);
+//            population = GeneticAlgorithms.rouletteWheelSelection(pool, POP_SIZE);
+            population = GeneticAlgorithms.bestFirstSelection(pool, POP_SIZE);
 
-            Thread.sleep(300);
+            it++;
         }
     }
 }

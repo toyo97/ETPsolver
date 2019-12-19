@@ -22,12 +22,12 @@ public class Solution {
      *
      * @param instance The instance which can provide the number of time-slots and many useful data
      */
-    public Solution(Instance instance) {
+    private Solution(Instance instance) {
         this.fitness = Double.MAX_VALUE;
         this.instance = instance;
         this.timetable = new ArrayList[instance.getnTimeslots()];
         for (int i = 0; i < instance.getnTimeslots(); i++) {
-            this.timetable[i] = new ArrayList<Integer>();
+            this.timetable[i] = new ArrayList<>();
         }
     }
 
@@ -100,28 +100,7 @@ public class Solution {
             while (!candidateExams.isEmpty()) {
                 int i = weightedSolution.getNextExam(candidateExams);
 
-                examAssigned = false;
-                // TODO try with random ordering of timeslot and test the `miss` frequency
-                List<ArrayList<Integer>> timetableList = Arrays.asList(weightedSolution.timetable);
-                if (randTimetable) {
-                    Collections.shuffle(timetableList);
-                }
-                for (ArrayList<Integer> timeslot : timetableList) {
-                    int l = 0;
-                    boolean conflictFound = false;
-                    // Scan for conflict in any exam in the current timeslot
-                    while (l < timeslot.size() && !conflictFound) {
-                        int j = timeslot.get(l);
-                        conflictFound = weightedSolution.instance.getNConflicts(i, j) > 0;
-                        l++;
-                    }
-
-                    if (!conflictFound) {
-                        timeslot.add(i);
-                        examAssigned = true;
-                        break;
-                    }
-                }
+                examAssigned = weightedSolution.placeExam(i, randTimetable);
 
                 if (!examAssigned) {
                     System.out.println("ERROR: exam not assigned to any timeslot");
@@ -129,8 +108,6 @@ public class Solution {
                 }
             }
         }
-
-        // TODO check feasibility and handle possible non-feasible solution
 
         return weightedSolution;
     }
@@ -147,19 +124,12 @@ public class Solution {
      * @param candidateExams    list of exams remained to be assigned
      * @return                  index of the chosen exam
      */
-    private int getNextExam(ArrayList<Integer> candidateExams) throws Exception {
+    private int getNextExam(ArrayList<Integer> candidateExams) {
         int[] degree = new int[candidateExams.size()];
         int max = 0;
         for (int i = 0; i < candidateExams.size(); i++) {
-            for (ArrayList<Integer> timeslot : this.timetable) {
-                // TODO extract function
-                for (int j: timeslot) {
-                    if (this.instance.getNConflicts(candidateExams.get(i), j) > 0) {
-                        degree[i] += 1;
-                        break;
-                    }
-                }
-            }
+            int ei = candidateExams.get(i);
+            degree[i] = getSaturationDegree(ei);
             if (degree[i] > max) {
                 max = degree[i];
             }
@@ -175,10 +145,66 @@ public class Solution {
         return candidateExams.remove((int) maxIdxList.get(e));
     }
 
-    // TODO implement
-    public boolean checkFeasibility() { return false; }
+    /**
+     * Saturation degree value for a given exam
+     *
+     * @param exam    exam to be checked
+     * @return      number of timeslots which are NOT available for the exam
+     */
+    private int getSaturationDegree(int exam) {
+        int deg = 0;
+        for (ArrayList<Integer> timeslot : this.timetable) {
+            for (int ej: timeslot) {
+                if (this.instance.getNConflicts(exam, ej) > 0) {
+                    deg += 1;
+                    break;
+                }
+            }
+        }
+        return deg;
+    }
 
-    // TODO implement
+    /**
+     * Place an exam in the timetable
+     *
+     * @param exam          index of the exam to be placed in the timetable
+     * @param randTimetable if true, the time-slots of the timetable are shuffled before assignment
+     * @return              true if the exam can be placed without conflicts
+     *
+     * @throws Exception    if the exam is already present in the timetable
+     */
+    public boolean placeExam(int exam, boolean randTimetable) throws Exception {
+        List<ArrayList<Integer>> timetableList = Arrays.asList(this.timetable);
+        if (randTimetable) {
+            Collections.shuffle(timetableList);
+        }
+        boolean examAssigned = false;
+        for (ArrayList<Integer> timeslot : timetableList) {
+            int l = 0;
+            boolean conflictFound = false;
+            // Scan for conflict in any exam in the current timeslot
+            while (l < timeslot.size() && !conflictFound) {
+                int j = timeslot.get(l);
+                conflictFound = this.instance.getNConflicts(exam, j) > 0;
+                l++;
+            }
+
+            if (!conflictFound) {
+                timeslot.add(exam);
+                examAssigned = true;
+                break;
+            }
+        }
+        return examAssigned;
+    }
+
+    public int popExam() {
+        int tsPick = new Random().nextInt(this.timetable.length);
+        int examPick = new Random().nextInt(this.timetable[tsPick].size());
+
+        return this.timetable[tsPick].remove(examPick);
+    }
+
     public void writeSolution() throws IOException {
         int[] T = this.computeT();
         String line;
@@ -195,7 +221,7 @@ public class Solution {
     /**
      * @return objective function value of the solution (lazy-load implementation)
      */
-    public double getFitness() throws Exception {
+    public double getFitness(){
 
         if (this.fitness == Double.MAX_VALUE) {
             this.fitness = this.computeObj();
@@ -203,7 +229,7 @@ public class Solution {
         return this.fitness;
     }
 
-    private double computeObj() throws Exception {
+    private double computeObj() {
         double obj = 0;
 
         int nExams = this.instance.getExams().length;
@@ -232,8 +258,7 @@ public class Solution {
         for (int i = 0; i < nExams; i++) {
             for (int j = 0; j < this.timetable.length; j++) {
                 if (timetable[j].contains(i)) {
-                    // TODO check if time-slot index starts from 1 or from 0
-                    T[i] = j + 1;  // assumed timeslot startingo from 0
+                    T[i] = j + 1;  // assumed timeslot starting from 0
                     break;
                 }
             }
