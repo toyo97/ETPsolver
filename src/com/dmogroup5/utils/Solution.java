@@ -205,6 +205,10 @@ public class Solution {
         return this.fitness;
     }
 
+    public void resetFitness() {
+        this.fitness = Double.MAX_VALUE;
+    }
+
     private double computeObj() {
         double obj = 0;
 

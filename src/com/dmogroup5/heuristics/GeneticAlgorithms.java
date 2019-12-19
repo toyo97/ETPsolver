@@ -26,7 +26,7 @@ public class GeneticAlgorithms {
                 examAssigned = mutatedSol.placeExam(exam, true);
             } while (!examAssigned);
         }
-
+        mutatedSol.resetFitness();
         return mutatedSol;
     }
 
