@@ -31,46 +31,22 @@ public class Solution {
         }
     }
 
-//    public static Solution randomSolution(Instance instance) {
-//        Solution randSolution = new Solution(instance);
-//        int nExams = randSolution.instance.getExams().length;
-//
-//        // Generate a random permutation of exams (note: shuffledExams contain positions, NOT exam IDs)
-//        List<Integer> shuffledExams = new ArrayList<>();
-//        for (int i = 0; i < nExams; i++) {
-//            shuffledExams.add(i);
-//        }
-//        java.util.Collections.shuffle(shuffledExams);
-//
-//        for (int i : shuffledExams) {
-//            boolean examAssigned = false;
-//            for (ArrayList<Integer> timeslot : randSolution.timetable) {
-//                int l = 0;
-//                boolean conflictFound = false;
-//                // Scan for conflict in any exam in the current timeslot
-//                while (l < timeslot.size() && !conflictFound) {
-//                    int j = timeslot.get(l);
-//                    conflictFound = randSolution.instance.getNConflicts(i, j) > 0;
-//                    l++;
-//                }
-//
-//                if (!conflictFound) {
-//                    timeslot.add(i);
-//                    examAssigned = true;
-//                    break;
-//                }
-//            }
-//
-//            if (!examAssigned) {
-//                System.out.println("ERROR: exam not assigned to any timeslot");
-//                return null;
-//            }
-//        }
-//
-//        // TODO check feasibility and handle possible non-feasible solution
-//
-//        return randSolution;
-//    }
+    /**
+     * Deep-copy constructor
+     *
+     * @param original solution to be cloned
+     */
+    public Solution(Solution original) {
+        this.fitness = original.fitness;
+        this.instance = original.getInstance();
+        this.timetable = new ArrayList[this.instance.getnTimeslots()];
+        for (int i = 0; i < this.instance.getnTimeslots(); i++) {
+            this.timetable[i] = new ArrayList<>();
+            for (int exam: original.timetable[i]) {
+                this.timetable[i].add(exam);
+            }
+        }
+    }
 
     /**
      * Generate a feasible initial solution using the saturation degree ordering
