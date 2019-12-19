@@ -26,7 +26,7 @@ public class Instance {
     private Instance(String instanceName, String directory) {
         this.instanceName = instanceName;
 
-        if (directory.endsWith("/")) {
+        if (directory.endsWith("/") || directory.equals("")) {
             this.directory = directory;
         } else {
             this.directory = directory + "/";
