@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Solver {
 
@@ -68,33 +69,44 @@ public class Solver {
         Solution[] population = new Solution[POP_SIZE];
 
         // generate the initial population and already write the best solution among all the individuals
-        int bestIdx = 0;
         for (int i = 0; i < population.length; i++) {
             population[i] = Solution.weightedSolution(this.instance, true);
-            if (population[bestIdx].getFitness() > population[i].getFitness()) {
-                bestIdx = i;
-            }
-        }
-        System.out.println("Best solution: " + population[bestIdx].getFitness());
-
-        // take the best and output this first result
-        Solution bestSol = population[bestIdx];
-        try {
-            bestSol.writeSolution();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         // ************ MAIN LOOP ***********
+        int it = 0;
         while (true) {
+            // ****** BEST SOLUTION PRINTOUT ******
+            int bestIdx = 0;
+            for (int i = 0; i < population.length; i++) {
+                if (population[bestIdx].getFitness() > population[i].getFitness()) {
+                    bestIdx = i;
+                }
+            }
+            System.out.println("Best solution at it " + it + ": " + population[bestIdx].getFitness());
+
+            // take the best and output this first result
+            Solution bestSol = population[bestIdx];
+            try {
+                bestSol.writeSolution();
+                if (this.verbose) {
+                    System.out.println("File written successfully");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // ****** CANDIDATES SELECTION ******
             // select 20% (selection percentage/ratio) of the population individuals
             int nSelected = (int) (POP_SIZE * SEL_RATIO);
-            int[] parentsIdx = getSelIndividuals(nSelected);
+            int[] parentsIdx = new Random().ints(nSelected, 0, POP_SIZE).toArray();
 
             Solution[] children = new Solution[nSelected];
-            for (int idx: parentsIdx){
+            for (int i = 0; i < nSelected; i++) {
+                int idx = parentsIdx[i];
+
                 // ****** MUTATION ******
-                children[idx] = GeneticAlgorithms.mutate(population[idx], MUTATION_RATIO);
+                children[i] = GeneticAlgorithms.mutate(population[idx], MUTATION_RATIO);
 
                 // ****** LOCAL SEARCH ******
                 // Find the first improvement or just one new
@@ -107,7 +119,7 @@ public class Solver {
 
                 for (LocalSearch.NeighStructures k: LocalSearch.NeighStructures.values()) {
 
-                    twins[k.ordinal()] = LocalSearch.genImprovedSolution(children[idx], k);
+                    twins[k.ordinal()] = LocalSearch.genImprovedSolution(children[i], k);
                     double tmpScore = twins[k.ordinal()].getFitness();
                     if (tmpScore < twinsBestF) {
                         twinsBestF = tmpScore;
@@ -115,38 +127,17 @@ public class Solver {
                     }
                 }
 
-                children[idx] = twins[bestTwinIdx];
+                children[i] = twins[bestTwinIdx];
             }
 
             // ****** POOL SELECTION ******
             // use roulette-wheel selection to pick the next generation population
-            List<Solution> pool = Arrays.asList(population);
+            List<Solution> pool = new ArrayList<>(Arrays.asList(population));
             pool.addAll(Arrays.asList(children));
+
             population = GeneticAlgorithms.rouletteWheelSelection(pool, POP_SIZE);
 
-            // write the current solution
-            try {
-                solution.writeSolution();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-
-            Thread.sleep(3000);
-            if (this.verbose) {
-                System.out.println("File written successfully");
-            }
-            System.out.println("3 seconds passed...");
+            Thread.sleep(300);
         }
     }
-    
-    private int[] getSelIndividuals(int nSelected) {
-        int[] selected = new int[nSelected];
-        
-        // TODO implement
-        
-        return selected;
-    }
-
 }

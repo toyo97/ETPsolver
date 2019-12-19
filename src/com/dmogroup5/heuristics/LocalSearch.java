@@ -26,6 +26,6 @@ public class LocalSearch {
             case N5:
             case N6:
         }
-        return new Solution(oldSolution.getInstance());
+        return oldSolution;
     }
 }

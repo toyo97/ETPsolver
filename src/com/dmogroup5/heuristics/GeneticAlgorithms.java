@@ -19,7 +19,7 @@ public class GeneticAlgorithms {
     public static Solution mutate(Solution parent, double ratio) {
         Solution mutatedSol = parent;
         // TODO implement
-        return mutatedSol;
+        return parent;
     }
 
     /**
