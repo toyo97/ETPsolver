@@ -7,6 +7,8 @@ import com.dmogroup5.utils.Solution;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Solver {
 
@@ -115,6 +117,13 @@ public class Solver {
 
                 children[idx] = twins[bestTwinIdx];
             }
+
+            // ****** POOL SELECTION ******
+            // use roulette-wheel selection to pick the next generation population
+            List<Solution> pool = Arrays.asList(population);
+            pool.addAll(Arrays.asList(children));
+            population = GeneticAlgorithms.rouletteWheelSelection(pool, POP_SIZE);
+
             // write the current solution
             try {
                 solution.writeSolution();
