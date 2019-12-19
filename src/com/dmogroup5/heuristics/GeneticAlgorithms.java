@@ -14,10 +14,20 @@ public class GeneticAlgorithms {
      * @param ratio     percentage of the course to be reassigned
      * @return          mutated solution
      */
-    public static Solution mutate(Solution parent, double ratio) {
-        Solution mutatedSol = parent;
-        // TODO implement
-        return parent;
+    public static Solution mutateSolution(Solution parent, double ratio) throws Exception {
+        int totExams = parent.getInstance().getExams().length;
+        int nCandidates = (int) (totExams * ratio);
+        Solution mutatedSol = new Solution(parent);
+
+        for (int i = 0; i < nCandidates; i++) {
+            int exam = mutatedSol.popExam();
+            boolean examAssigned;
+            do {
+                examAssigned = mutatedSol.placeExam(exam, true);
+            } while (!examAssigned);
+        }
+
+        return mutatedSol;
     }
 
     /**
@@ -48,5 +58,19 @@ public class GeneticAlgorithms {
         }
 
         return newPopulation;
+    }
+
+    public static Solution[] bestFirstSelection(List<Solution> pool, int popSize) {
+        pool.sort((solA, solB) -> {
+                double x = solA.getFitness();
+                double y = solB.getFitness();
+                return Double.compare(x, y);
+        });
+
+        Solution[] bestFirst = new Solution[popSize];
+        for (int i = 0; i < popSize; i++) {
+            bestFirst[i] = pool.get(i);
+        }
+        return bestFirst;
     }
 }
