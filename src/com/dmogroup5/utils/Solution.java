@@ -3,6 +3,7 @@ package com.dmogroup5.utils;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Class for a solution: the timetable variable contains every exam assigned for each time-slot (list of list),
@@ -149,7 +150,7 @@ public class Solution {
      *
      * @throws Exception    if the exam is already present in the timetable
      */
-    public boolean placeExam(int exam, boolean randTimetable) throws Exception {
+    public boolean placeExam(int exam, boolean randTimetable) {
         List<ArrayList<Integer>> timetableList = Arrays.asList(this.timetable);
         if (randTimetable) {
             Collections.shuffle(timetableList);
@@ -174,7 +175,25 @@ public class Solution {
         return examAssigned;
     }
 
-    public int popExam() {
+    public int popExam(int exam) {
+        int ts = -1;
+        for (int i = 0; i < this.timetable.length; i++) {
+            if (timetable[i].contains(exam)) {
+                ts = i;
+                break;
+            }
+        }
+        if (ts == -1) {
+            System.err.println("Exam " + exam + " expected to be in timeslot cannot be found");
+        }
+        return popExam(exam, ts);
+    }
+
+    public int popExam(int exam, int ts) {
+        return this.timetable[ts].remove(exam);
+    }
+
+    public int popRandExam() {
         int tsPick = new Random().nextInt(this.timetable.length);
         int examPick = new Random().nextInt(this.timetable[tsPick].size());
 
@@ -226,6 +245,44 @@ public class Solution {
             }
         }
         return obj;
+    }
+
+    /**
+     * Compute the penalty caused by each exam among a portion (given by the ratio) of all the exams and take the
+     * most critical one
+     *
+     * @param ratio percentage of the exams to be analysed
+     * @return      highest penalty exam and its timeslot
+     */
+    public int[] getHighestPenaltyExam(double ratio) {
+        // pick nExams * ratio exams at random
+        int totNExams = this.instance.getExams().length;
+        
+        int[] T = this.computeT();
+        double[] penalties = new double[totNExams];
+        
+        for (int i = 0; i < totNExams - 1; i++) {
+            for (int j = i + 1; j < totNExams; j++) {
+                if (this.instance.getNConflicts(i,j) > 0) {
+                    int dist = Math.abs(T[i] - T[j]);
+                    if (dist <= 5) {
+                        penalties[i] += Math.pow(2, 5 - dist) * this.instance.getNConflicts(i,j) / this.instance.getnStudents();
+                    }
+                }
+            }
+        }
+        
+        int[] selectedExams = Selection.pickRandPortion(IntStream.range(0, totNExams).toArray(), ratio);
+        int resIdx = selectedExams[0];
+        double maxPenalty = penalties[selectedExams[0]];
+        for (int i = 0; i < selectedExams.length; i++) {
+            if (penalties[selectedExams[i]] > maxPenalty) {
+                resIdx = selectedExams[i];
+                maxPenalty = penalties[selectedExams[i]];
+            }
+        }
+        
+        return new int[] {resIdx, T[resIdx]};
     }
 
     public boolean isFeasible() {
