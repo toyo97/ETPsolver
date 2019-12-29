@@ -228,6 +228,19 @@ public class Solution {
         return obj;
     }
 
+    public boolean isFeasible() {
+        for (ArrayList timeslot : this.timetable) {
+            for (int i = 0; i < timeslot.size() - 1; i++) {
+                for (int j = i + 1; j < timeslot.size(); j++) {
+                    if (this.instance.getNConflicts((int) timeslot.get(i), (int) timeslot.get(j)) > 0){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     /**
      * @return array of length nExams, time-slot assigned to each exam
      */
