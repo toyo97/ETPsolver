@@ -175,7 +175,12 @@ public class Solution {
         return examAssigned;
     }
 
-    public int popExam(int exam) {
+    public boolean popExam(int exam) {
+        int ts = findExam(exam);
+        return popExam(exam, ts);
+    }
+
+    public int findExam(int exam) {
         int ts = -1;
         for (int i = 0; i < this.timetable.length; i++) {
             if (timetable[i].contains(exam)) {
@@ -184,13 +189,13 @@ public class Solution {
             }
         }
         if (ts == -1) {
-            System.err.println("Exam " + exam + " expected to be in timeslot cannot be found");
+            System.err.println("Exam " + exam + " expected to be in timetable cannot be found in any timeslot");
         }
-        return popExam(exam, ts);
+        return ts;
     }
 
-    public int popExam(int exam, int ts) {
-        return this.timetable[ts].remove(exam);
+    public boolean popExam(int exam, int ts) {
+        return this.timetable[ts].remove(Integer.valueOf(exam));
     }
 
     public int popRandExam() {
