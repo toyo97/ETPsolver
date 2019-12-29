@@ -30,8 +30,12 @@ public class LocalSearch {
             case N4:
                 newSolution = moveRandTimeslot(oldSolution);
                 break;
-//            case N5:
-//            case N6:
+            case N5:
+                newSolution = moveCriticalExam(oldSolution, 0.1);
+                break;
+            case N6:
+                newSolution = moveCriticalExam(oldSolution, 0.2);
+                break;
         }
         return newSolution;
     }
@@ -119,6 +123,34 @@ public class LocalSearch {
             System.out.println("[IMPROVEMENT N4] Shift between " + ts1 + " and " + ts2);
         }
 
+        return newSolution;
+    }
+
+    /**
+     * N5-N6
+     * Move highest penalty exam
+     *
+     * @param ratio in range (0,1): percentage of the exams to be analysed
+     */
+    private static Solution moveCriticalExam(Solution oldSolution, double ratio) {
+        int[] highestPenaltyExam = oldSolution.getHighestPenaltyExam(ratio);
+        int exam = highestPenaltyExam[0];
+        int examTS = highestPenaltyExam[1];
+
+        Solution newSolution = new Solution(oldSolution);
+        newSolution.resetFitness();
+        newSolution.popExam(exam, examTS - 1);
+
+        newSolution.placeExam(exam, true);
+
+        if (!newSolution.isFeasible()) {
+            System.err.println("Solution is not feasible!");
+        }
+
+        if (newSolution.getFitness() > oldSolution.getFitness()) {
+            System.out.println("[IMPROVEMENT N5-N6] Moved exam " + exam + " from ts " + examTS + " to ts "
+                    + newSolution.findExam(exam));
+        }
         return newSolution;
     }
 }
