@@ -20,7 +20,7 @@ public class GeneticAlgorithms {
         Solution mutatedSol = new Solution(parent);
 
         for (int i = 0; i < nCandidates; i++) {
-            int exam = mutatedSol.popExam();
+            int exam = mutatedSol.popRandExam();
             boolean examAssigned;
             do {
                 examAssigned = mutatedSol.placeExam(exam, true);
