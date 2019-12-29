@@ -2,6 +2,9 @@ package com.dmogroup5.heuristics;
 
 import com.dmogroup5.utils.Solution;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class LocalSearch {
 
     // neighborhood structures
@@ -15,17 +18,107 @@ public class LocalSearch {
 
     // TODO implement both with first improvement and first new solution
     public static Solution genImprovedSolution(Solution oldSolution, NeighStructures neighStruct) {
-        Solution newSolution;
+        Solution newSolution = new Solution(oldSolution);
 
         switch (neighStruct) {
-            case N2:
-//                newSolution = new Solution(oldSolution.getInstance());
-                System.out.println("Called neighborhood " + NeighStructures.N2);
+//            case N2:
+////                newSolution = new Solution(oldSolution.getInstance());
+//                System.out.println("Called neighborhood " + NeighStructures.N2);
             case N3:
+                newSolution = swapRandTimeslots(oldSolution);
+                break;
             case N4:
-            case N5:
-            case N6:
+                newSolution = moveRandTimeslot(oldSolution);
+                break;
+//            case N5:
+//            case N6:
         }
-        return oldSolution;
+        return newSolution;
+    }
+
+    /**
+     * N3
+     */
+    // TODO implement steepes descent
+    private static Solution swapRandTimeslots(Solution oldSolution) {
+        Random rand = new Random();
+        int ts1 = rand.nextInt(oldSolution.getTimetable().length);
+        int ts2;
+        do {
+            ts2 = rand.nextInt(oldSolution.getTimetable().length);
+        } while (ts1 == ts2);
+
+        Solution newSolution = new Solution(oldSolution);
+        newSolution.getTimetable()[ts1] = (ArrayList) oldSolution.getTimetable()[ts2].clone();
+        newSolution.getTimetable()[ts2] = (ArrayList) oldSolution.getTimetable()[ts1].clone();
+        newSolution.resetFitness();
+        if (!newSolution.isFeasible()) {
+            System.err.println("Solution is not feasible!");
+        }
+        if (newSolution.getFitness() > oldSolution.getFitness()) {
+            System.out.println("[IMPROVEMENT N3] Swapped " + ts1 + " with " + ts2);
+        }
+
+        return newSolution;
+    }
+
+    /**
+     * N4
+     */
+    private static Solution moveRandTimeslot(Solution oldSolution) {
+        Random rand = new Random();
+        int nTimeslots = oldSolution.getTimetable().length;
+
+//      randomly determine direction of the swap
+        boolean forward = rand.nextBoolean();
+
+//      randomly determine first timeslot and the second, whose distance must be greater than 1
+        int ts1 = rand.nextInt(nTimeslots);
+        int ts2;
+        do {
+            ts2 = rand.nextInt(nTimeslots);
+        } while (Math.abs(ts1 - ts2) < 2);
+
+//      order timeslots so that ts1 < ts2
+        int tmpTS;
+        if (ts1 > ts2) {
+            tmpTS = ts1;
+            ts1 = ts2;
+            ts2 = tmpTS;
+        }
+
+        Solution newSolution = new Solution(oldSolution);
+
+        ArrayList[] timetable = newSolution.getTimetable();
+        //  clockwise rotation
+        if (forward) {
+            ArrayList tmp = timetable[ts1];
+            timetable[ts1] = timetable[ts2];
+            for (int i = ts2; i > ts1 + 1; i--) {
+                timetable[i] = timetable[i-1];
+            }
+            timetable[ts1+1] = tmp;
+        }
+        //  anti-clockwise rotation
+        else {
+            ArrayList tmp = timetable[ts2];
+            timetable[ts2] = timetable[ts1];
+            for (int i = ts1; i < ts2 - 1; i++) {
+                timetable[i] = timetable[i+1];
+            }
+            timetable[ts2-1] = tmp;
+        }
+
+        newSolution.resetFitness();
+        // TODO remove feasibility check
+        if (!newSolution.isFeasible()) {
+            System.err.println("Solution is not feasible!");
+        }
+
+        if (newSolution.getFitness() > oldSolution.getFitness()) {
+            System.out.println("[IMPROVEMENT N4] Shift between " + ts1 + " and " + ts2);
+        }
+
+        return newSolution;
     }
 }
