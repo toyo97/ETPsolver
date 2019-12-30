@@ -14,7 +14,7 @@ public class GeneticAlgorithms {
      * @param ratio     percentage of the course to be reassigned
      * @return          mutated solution
      */
-    public static Solution mutateSolution(Solution parent, double ratio) throws Exception {
+    public static Solution mutateSolution(Solution parent, double ratio) {
         int totExams = parent.getInstance().getExams().length;
         int nCandidates = (int) (totExams * ratio);
         Solution mutatedSol = new Solution(parent);

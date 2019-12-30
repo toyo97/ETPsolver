@@ -58,7 +58,7 @@ public class Solution {
      *                      (produces more valuable solutions but `miss` is more frequent)
      * @return              feasible complete solution
      */
-    public static Solution weightedSolution(Instance instance, boolean randTimetable) throws Exception {
+    public static Solution weightedSolution(Instance instance, boolean randTimetable) {
         Solution weightedSolution = null;
         ArrayList<Integer> candidateExams;
 
