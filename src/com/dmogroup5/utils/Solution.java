@@ -15,6 +15,8 @@ public class Solution {
     // Note: timetable arrays contain the positions of the exams in the array `exams`, NOT the exams ID
     // This is done to avoid search in the `exams` array. Search is done only in input reading and solution writing
     private ArrayList<Integer>[] timetable;
+    // T array stores the solution in a different encoding: for each exam, its timeslot
+    private int[] T;
     private Instance instance;
     private double fitness;
 
@@ -25,6 +27,7 @@ public class Solution {
      */
     private Solution(Instance instance) {
         this.fitness = Double.MAX_VALUE;
+        this.T = null;
         this.instance = instance;
         this.timetable = new ArrayList[instance.getnTimeslots()];
         for (int i = 0; i < instance.getnTimeslots(); i++) {
@@ -39,6 +42,7 @@ public class Solution {
      */
     public Solution(Solution original) {
         this.fitness = original.fitness;
+        this.T = original.T;
         this.instance = original.getInstance();
         this.timetable = new ArrayList[this.instance.getnTimeslots()];
         for (int i = 0; i < this.instance.getnTimeslots(); i++) {
@@ -89,7 +93,7 @@ public class Solution {
         return weightedSolution;
     }
 
-    public static Solution weightedSolution(Instance instance) throws Exception {
+    public static Solution weightedSolution(Instance instance) {
         return weightedSolution(instance, false);
     }
 
@@ -147,8 +151,6 @@ public class Solution {
      * @param exam          index of the exam to be placed in the timetable
      * @param randTimetable if true, the time-slots of the timetable are shuffled before assignment
      * @return              true if the exam can be placed without conflicts
-     *
-     * @throws Exception    if the exam is already present in the timetable
      */
     public boolean placeExam(int exam, boolean randTimetable) {
         List<ArrayList<Integer>> timetableList = Arrays.asList(this.timetable);
@@ -206,7 +208,7 @@ public class Solution {
     }
 
     public void writeSolution() throws IOException {
-        int[] T = this.computeT();
+        int[] T = this.getT();
         String line;
         FileWriter fw = new FileWriter("solution.sol");
 
@@ -229,15 +231,16 @@ public class Solution {
         return this.fitness;
     }
 
-    public void resetFitness() {
+    public void resetAttributes() {
         this.fitness = Double.MAX_VALUE;
+        this.T = null;
     }
 
     private double computeObj() {
         double obj = 0;
 
         int nExams = this.instance.getExams().length;
-        int[] T = this.computeT();
+        int[] T = this.getT();
 
         for (int i = 0; i < nExams - 1; i++) {
             for (int j = i + 1; j < nExams; j++) {
@@ -263,18 +266,11 @@ public class Solution {
         // pick nExams * ratio exams at random
         int totNExams = this.instance.getExams().length;
         
-        int[] T = this.computeT();
+        int[] T = this.getT();
         double[] penalties = new double[totNExams];
         
-        for (int i = 0; i < totNExams - 1; i++) {
-            for (int j = i + 1; j < totNExams; j++) {
-                if (this.instance.getNConflicts(i,j) > 0) {
-                    int dist = Math.abs(T[i] - T[j]);
-                    if (dist <= 5) {
-                        penalties[i] += Math.pow(2, 5 - dist) * this.instance.getNConflicts(i,j) / this.instance.getnStudents();
-                    }
-                }
-            }
+        for (int i = 0; i < totNExams; i++) {
+            penalties[i] += this.getPenalty(i);
         }
         
         int[] selectedExams = Selection.pickRandPortion(IntStream.range(0, totNExams).toArray(), ratio);
@@ -288,6 +284,21 @@ public class Solution {
         }
         
         return new int[] {resIdx, T[resIdx]};
+    }
+
+    public double getPenalty(int exam) {
+        int nExams = this.instance.getExams().length;
+        double penalty = 0;
+        int[] T = this.getT();
+        for (int j = 0; j < nExams; j++) {
+            if (exam != j && this.instance.getNConflicts(exam,j) > 0) {
+                int dist = Math.abs(T[exam] - T[j]);
+                if (dist <= 5) {
+                    penalty += Math.pow(2, 5 - dist) * this.instance.getNConflicts(exam,j) / this.instance.getnStudents();
+                }
+            }
+        }
+        return penalty;
     }
 
     public boolean isFeasible() {
@@ -306,19 +317,22 @@ public class Solution {
     /**
      * @return array of length nExams, time-slot assigned to each exam
      */
-    private int[] computeT() {
-        int nExams = this.instance.getExams().length;
-        int[] T = new int[nExams];
+    public int[] getT() {
+        if (this.T == null) {
+            int nExams = this.instance.getExams().length;
+            int[] T = new int[nExams];
 
-        for (int i = 0; i < nExams; i++) {
-            for (int j = 0; j < this.timetable.length; j++) {
-                if (timetable[j].contains(i)) {
-                    T[i] = j + 1;  // assumed timeslot starting from 0
-                    break;
+            for (int i = 0; i < nExams; i++) {
+                for (int j = 0; j < this.timetable.length; j++) {
+                    if (timetable[j].contains(i)) {
+                        T[i] = j + 1;  // assumed timeslot starting from 0
+                        break;
+                    }
                 }
             }
+            this.T = T;
         }
-        return T;
+        return this.T;
     }
 
     public ArrayList[] getTimetable() {
