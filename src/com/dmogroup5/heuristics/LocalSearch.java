@@ -13,7 +13,9 @@ public class LocalSearch {
         N3, // Select two timeslots at random and simply swap all the courses in one timeslot with all the courses in the other timeslot
         N4, // Move random timeslot and shift the others
         N5, // Move the highest penalty course from a random 10% selection of the courses to a random feasible timeslot
-        N6 // Same as N5 but with 20%
+        N6, // Same as N5 but with 20%
+        N7,
+        N8
     }
 
     // TODO implement both with first improvement and first new solution
@@ -32,10 +34,16 @@ public class LocalSearch {
                 newSolution = moveRandTimeslot(oldSolution);
                 break;
             case N5:
-                newSolution = moveCriticalExam(oldSolution, 0.1);
+                newSolution = moveCriticalExam(oldSolution, 0.1, false);
                 break;
             case N6:
-                newSolution = moveCriticalExam(oldSolution, 0.2);
+                newSolution = moveCriticalExam(oldSolution, 0.2, false);
+                break;
+            case N7:
+                newSolution = moveCriticalExam(oldSolution, 0.1, true);
+                break;
+            case N8:
+                newSolution = moveCriticalExam(oldSolution, 0.2, true);
                 break;
         }
         return newSolution;
@@ -44,7 +52,7 @@ public class LocalSearch {
     /**
      * N3
      */
-    // TODO implement steepes descent
+    // TODO implement steepest descent
     private static Solution swapRandTimeslots(Solution oldSolution) {
         Random rand = new Random();
         int ts1 = rand.nextInt(oldSolution.getTimetable().length);
@@ -131,18 +139,38 @@ public class LocalSearch {
      * N5-N6
      * Move highest penalty exam
      *
-     * @param ratio in range (0,1): percentage of the exams to be analysed
+     * @param ratio     in range (0,1): percentage of the exams to be analysed
+     * @param optimize  true if exam is placed in the optimal timeslot
      */
-    private static Solution moveCriticalExam(Solution oldSolution, double ratio) {
+    private static Solution moveCriticalExam(Solution oldSolution, double ratio, boolean optimize) {
         int[] highestPenaltyExam = oldSolution.getHighestPenaltyExam(ratio);
         int exam = highestPenaltyExam[0];
         int examTS = highestPenaltyExam[1];
 
         Solution newSolution = new Solution(oldSolution);
         newSolution.resetAttributes();
+        // FIXME unknown value of ts (from 0 to nTS-1 or from 1 to nTS ?)
         newSolution.popExam(exam, examTS - 1);
 
-        newSolution.placeExam(exam, true);
+        if (optimize) {
+            int nTimeslots = newSolution.getTimetable().length;
+            double bestFitness = Double.MAX_VALUE;
+            int bestTimeslot = examTS - 1;
+            for (int i = 0; i < nTimeslots; i++) {
+                if (newSolution.placeExam(exam, i)) {
+                    double obj = newSolution.getFitness();
+                    if (obj < bestFitness) {
+                        bestFitness = obj;
+                        bestTimeslot = i;
+                    }
+                    newSolution.popExam(exam, i);
+                    newSolution.resetAttributes();
+                }
+            }
+            newSolution.placeExam(exam, bestTimeslot);
+        } else {
+            newSolution.placeExam(exam, true);
+        }
 
         if (!newSolution.isFeasible()) {
             System.err.println("Solution is not feasible!");

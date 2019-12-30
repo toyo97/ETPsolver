@@ -177,6 +177,16 @@ public class Solution {
         return examAssigned;
     }
 
+    public boolean placeExam(int exam, int timeslot) {
+        for (int ej : this.timetable[timeslot]) {
+            if (this.getInstance().getNConflicts(exam, ej) > 0) {
+                return false;
+            }
+        }
+        this.timetable[timeslot].add(exam);
+        return true;
+    }
+
     public boolean popExam(int exam) {
         int ts = findExam(exam);
         return popExam(exam, ts);
