@@ -56,7 +56,7 @@ public class LocalSearch {
         Solution newSolution = new Solution(oldSolution);
         newSolution.getTimetable()[ts1] = (ArrayList) oldSolution.getTimetable()[ts2].clone();
         newSolution.getTimetable()[ts2] = (ArrayList) oldSolution.getTimetable()[ts1].clone();
-        newSolution.resetFitness();
+        newSolution.resetAttributes();
         if (!newSolution.isFeasible()) {
             System.err.println("Solution is not feasible!");
         }
@@ -114,7 +114,7 @@ public class LocalSearch {
             timetable[ts2-1] = tmp;
         }
 
-        newSolution.resetFitness();
+        newSolution.resetAttributes();
         // TODO remove feasibility check
         if (!newSolution.isFeasible()) {
             System.err.println("Solution is not feasible!");
@@ -139,7 +139,7 @@ public class LocalSearch {
         int examTS = highestPenaltyExam[1];
 
         Solution newSolution = new Solution(oldSolution);
-        newSolution.resetFitness();
+        newSolution.resetAttributes();
         newSolution.popExam(exam, examTS - 1);
 
         newSolution.placeExam(exam, true);
