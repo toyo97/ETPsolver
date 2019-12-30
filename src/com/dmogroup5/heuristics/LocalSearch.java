@@ -22,8 +22,9 @@ public class LocalSearch {
 
         switch (neighStruct) {
 //            case N2:
-////                newSolution = new Solution(oldSolution.getInstance());
-//                System.out.println("Called neighborhood " + NeighStructures.N2);
+//                double r = 1. / oldSolution.getInstance().getExams().length;
+//                newSolution = GeneticAlgorithms.mutateSolution(oldSolution, r);
+//                break;
             case N3:
                 newSolution = swapRandTimeslots(oldSolution);
                 break;
