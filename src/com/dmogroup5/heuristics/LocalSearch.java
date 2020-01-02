@@ -23,10 +23,10 @@ public class LocalSearch {
         Solution newSolution = new Solution(oldSolution);
 
         switch (neighStruct) {
-//            case N2:
-//                double r = 1. / oldSolution.getInstance().getExams().length;
-//                newSolution = GeneticAlgorithms.mutateSolution(oldSolution, r);
-//                break;
+            case N2:
+                double r = 1. / oldSolution.getInstance().getExams().length;
+                newSolution = GeneticAlgorithms.mutateSolution(oldSolution, r);
+                break;
             case N3:
                 newSolution = swapRandTimeslots(oldSolution);
                 break;
@@ -65,12 +65,12 @@ public class LocalSearch {
         newSolution.getTimetable()[ts1] = (ArrayList) oldSolution.getTimetable()[ts2].clone();
         newSolution.getTimetable()[ts2] = (ArrayList) oldSolution.getTimetable()[ts1].clone();
         newSolution.resetAttributes();
-        if (!newSolution.isFeasible()) {
-            System.err.println("Solution is not feasible!");
-        }
-        if (newSolution.getFitness() > oldSolution.getFitness()) {
-            System.out.println("[IMPROVEMENT N3] Swapped " + ts1 + " with " + ts2);
-        }
+//        if (!newSolution.isFeasible()) {
+//            System.err.println("Solution is not feasible!");
+//        }
+//        if (newSolution.getFitness() > oldSolution.getFitness()) {
+//            System.out.println("[IMPROVEMENT N3] Swapped " + ts1 + " with " + ts2);
+//        }
 
         return newSolution;
     }
@@ -123,14 +123,13 @@ public class LocalSearch {
         }
 
         newSolution.resetAttributes();
-        // TODO remove feasibility check
-        if (!newSolution.isFeasible()) {
-            System.err.println("Solution is not feasible!");
-        }
-
-        if (newSolution.getFitness() > oldSolution.getFitness()) {
-            System.out.println("[IMPROVEMENT N4] Shift between " + ts1 + " and " + ts2);
-        }
+//        if (!newSolution.isFeasible()) {
+//            System.err.println("Solution is not feasible!");
+//        }
+//
+//        if (newSolution.getFitness() > oldSolution.getFitness()) {
+//            System.out.println("[IMPROVEMENT N4] Shift between " + ts1 + " and " + ts2);
+//        }
 
         return newSolution;
     }
@@ -170,15 +169,15 @@ public class LocalSearch {
         } else {
             newSolution.placeExam(exam, true);
         }
+//
+//        if (!newSolution.isFeasible()) {
+//            System.err.println("Solution is not feasible!");
+//        }
 
-        if (!newSolution.isFeasible()) {
-            System.err.println("Solution is not feasible!");
-        }
-
-        if (newSolution.getFitness() > oldSolution.getFitness()) {
-            System.out.println("[IMPROVEMENT N5-N6] Moved exam " + exam + " from ts " + examTS + " to ts "
-                    + newSolution.findExam(exam));
-        }
+//        if (newSolution.getFitness() > oldSolution.getFitness()) {
+//            System.out.println("[IMPROVEMENT N5-N6] Moved exam " + exam + " from ts " + examTS + " to ts "
+//                    + newSolution.findExam(exam));
+//        }
         return newSolution;
     }
 }
