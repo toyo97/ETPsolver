@@ -194,7 +194,7 @@ public class LocalSearch {
         if (optimize) {
             int nTimeslots = newSolution.getTimetable().length;
             double bestFitness = Double.MAX_VALUE;
-            int bestTimeslot = examTS - 1;
+            int bestTimeslot = examTS;
             for (int i = 0; i < nTimeslots; i++) {
                 if (newSolution.placeExam(exam, i)) {
                     double obj = newSolution.getFitness();
