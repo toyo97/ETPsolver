@@ -345,8 +345,8 @@ public class Solution {
         return this.T;
     }
 
-    public ArrayList[] getTimetable() {
-        return timetable;
+    public ArrayList<Integer>[] getTimetable() {
+        return this.timetable;
     }
 
     public Instance getInstance() {
