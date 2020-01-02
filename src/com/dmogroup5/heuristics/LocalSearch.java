@@ -16,8 +16,11 @@ public class LocalSearch {
         N4, // Move random timeslot and shift the others
         N5, // Move the highest penalty course from a random 10% selection of the courses to a random feasible timeslot
         N6, // Same as N5 but with 20%
-        N7,
-        N8
+        N7, // Move the highest penalty course from a random 10% selection of the courses to a new feasible timeslot that can generate the lowest penalty cost.
+        N8, // As N7 but with 20% of the courses.
+        N9, // Apply kempe-chain from a random exam
+        N10, // Apply kempe-chain taking the highest penalty course from a random 10% selection of the courses
+        N11 // Apply kempe-chain taking the highest penalty course from a random 20% selection of the courses
     }
 
     // TODO implement both with first improvement and first new solution
@@ -49,6 +52,15 @@ public class LocalSearch {
                 break;
             case N8:
                 newSolution = moveCriticalExam(oldSolution, 0.2, true);
+                break;
+            case N9:
+                newSolution = kempeRandMove(oldSolution);
+                break;
+            case N10:
+                newSolution = kempeMove(oldSolution, 0.1);
+                break;
+            case N11:
+                newSolution = kempeMove(oldSolution, 0.2);
                 break;
         }
         return newSolution;
@@ -219,6 +231,87 @@ public class LocalSearch {
 //            System.out.println("[IMPROVEMENT N5-N6] Moved exam " + exam + " from ts " + examTS + " to ts "
 //                    + newSolution.findExam(exam));
 //        }
+        return newSolution;
+    }
+
+    private static Solution kempeRandMove(Solution oldSolution) {
+        Solution newSolution = new Solution(oldSolution);
+        newSolution.resetAttributes();
+
+        int nExams = newSolution.getInstance().getExams().length;
+        Random rand = new Random();
+        int ei = rand.nextInt(nExams);
+        int ti = newSolution.findExam(ei);
+
+        return kempeChainAlgorithm(newSolution, ei, ti);
+    }
+
+    private static Solution kempeMove(Solution oldSolution, double ratio) {
+
+        int[] highestPenaltyExam = oldSolution.getHighestPenaltyExam(ratio);
+        int exam = highestPenaltyExam[0];
+        int examTS = highestPenaltyExam[1];
+        Solution newSolution = new Solution(oldSolution);
+        newSolution.resetAttributes();
+
+        return kempeChainAlgorithm(newSolution, exam, examTS);
+    }
+
+    private static Solution kempeChainAlgorithm(Solution newSolution, int exam, int examTS) {
+        int nTimeslots = newSolution.getTimetable().length;
+
+        int newTS;
+        Random rand = new Random();
+        do {
+            newTS = rand.nextInt(nTimeslots);
+        } while (newTS == examTS);
+
+        ArrayList<Integer> queue1 = new ArrayList<>();
+        queue1.add(exam);
+        ArrayList<Integer> queue2 = new ArrayList<>();
+        ArrayList<Integer> visited1 = new ArrayList<>();
+        ArrayList<Integer> visited2 = new ArrayList<>();
+
+        while (!queue1.isEmpty()) {
+            while (!queue1.isEmpty()) {
+                int currentExam = queue1.remove(0);
+                visited1.add(currentExam);
+                for (int ej : newSolution.getTimetable()[newTS]) {
+                    if (!visited2.contains(ej) && !queue2.contains(ej) && newSolution.getInstance().getNConflicts(currentExam, ej) > 0) {
+                        queue2.add(ej);
+                    }
+                }
+            }
+
+            while (!queue2.isEmpty()) {
+                int currentExam = queue2.remove(0);
+                visited2.add(currentExam);
+                for (int ei : newSolution.getTimetable()[examTS]) {
+                    if (!visited1.contains(ei) && !queue1.contains(ei) && newSolution.getInstance().getNConflicts(currentExam, ei) > 0) {
+                        queue1.add(ei);
+                    }
+                }
+            }
+        }
+
+//        System.out.println("Kempe-chain " + examTS + " - " + newTS + "\n" +
+//                visited1.toString() + "\n" + visited2.toString());
+
+        // remove kempe-chain exams from both timeslots
+        for (int ei : visited1) {
+            newSolution.popExam(ei, examTS);
+        }
+        for (int ej : visited2) {
+            newSolution.popExam(ej, newTS);
+        }
+
+        // add kempe-chain exams each to its alternative timeslot
+        for (int ei : visited1) {
+            newSolution.placeExam(ei, newTS);
+        }
+        for (int ej : visited2) {
+            newSolution.placeExam(ej, examTS);
+        }
         return newSolution;
     }
 }
