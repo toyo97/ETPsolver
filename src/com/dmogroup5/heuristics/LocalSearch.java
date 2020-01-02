@@ -149,8 +149,7 @@ public class LocalSearch {
 
         Solution newSolution = new Solution(oldSolution);
         newSolution.resetAttributes();
-        // FIXME unknown value of ts (from 0 to nTS-1 or from 1 to nTS ?)
-        newSolution.popExam(exam, examTS - 1);
+        newSolution.popExam(exam, examTS);
 
         if (optimize) {
             int nTimeslots = newSolution.getTimetable().length;

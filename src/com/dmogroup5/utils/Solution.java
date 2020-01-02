@@ -270,7 +270,7 @@ public class Solution {
      * most critical one
      *
      * @param ratio percentage of the exams to be analysed
-     * @return      highest penalty exam and its timeslot
+     * @return      highest penalty exam and its timeslot (from 0 to nTimeslots-1)
      */
     public int[] getHighestPenaltyExam(double ratio) {
         // pick nExams * ratio exams at random
@@ -293,7 +293,7 @@ public class Solution {
             }
         }
         
-        return new int[] {resIdx, T[resIdx]};
+        return new int[] {resIdx, T[resIdx]-1};
     }
 
     public double getPenalty(int exam) {
