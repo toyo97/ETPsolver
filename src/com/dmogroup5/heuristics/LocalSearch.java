@@ -3,12 +3,14 @@ package com.dmogroup5.heuristics;
 import com.dmogroup5.utils.Solution;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class LocalSearch {
 
     // neighborhood structures
     public enum NeighStructures {
+        N1, // Choose a single course at random and find another exam in another timeslot with which to swap timeslots
         N2, // Choose a single course at random and move it to another random feasible timeslot
         N3, // Select two timeslots at random and simply swap all the courses in one timeslot with all the courses in the other timeslot
         N4, // Move random timeslot and shift the others
@@ -23,6 +25,9 @@ public class LocalSearch {
         Solution newSolution = new Solution(oldSolution);
 
         switch (neighStruct) {
+            case N1:
+                newSolution = swapRandExams(oldSolution);
+                break;
             case N2:
                 double r = 1. / oldSolution.getInstance().getExams().length;
                 newSolution = GeneticAlgorithms.mutateSolution(oldSolution, r);
@@ -46,6 +51,42 @@ public class LocalSearch {
                 newSolution = moveCriticalExam(oldSolution, 0.2, true);
                 break;
         }
+        return newSolution;
+    }
+
+    private static Solution swapRandExams(Solution oldSolution) {
+        Solution newSolution = new Solution(oldSolution);
+
+        int nExams = newSolution.getInstance().getExams().length;
+        int nTimeslots = newSolution.getTimetable().length;
+        Random rand = new Random();
+        int ei = rand.nextInt(nExams);
+        int ti = newSolution.findExam(ei);
+
+        ArrayList<Integer> candidateTS = new ArrayList<>();
+        for (int i = 0; i < nTimeslots; i++) {
+            if (i != ti) {
+                candidateTS.add(i);
+            }
+        }
+
+        Collections.shuffle(candidateTS);
+        outerFor:
+        for (int tj : candidateTS) {
+            for (int ej : newSolution.getTimetable()[tj]) {
+                if (newSolution.swappable(ei, ti, ej, tj)) {
+                    newSolution.popExam(ei, ti);
+                    newSolution.popExam(ej, tj);
+
+                    newSolution.placeExam(ei, tj);
+                    newSolution.placeExam(ej, ti);
+                    break outerFor;
+                }
+            }
+        }
+
+        newSolution.resetAttributes();
+
         return newSolution;
     }
 
