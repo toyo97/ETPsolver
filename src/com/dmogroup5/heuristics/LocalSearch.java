@@ -135,7 +135,7 @@ public class LocalSearch {
     }
 
     /**
-     * N5-N6
+     * N5-N6-N7-N8
      * Move highest penalty exam
      *
      * @param ratio     in range (0,1): percentage of the exams to be analysed
