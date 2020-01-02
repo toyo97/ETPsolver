@@ -335,7 +335,7 @@ public class Solution {
             for (int i = 0; i < nExams; i++) {
                 for (int j = 0; j < this.timetable.length; j++) {
                     if (timetable[j].contains(i)) {
-                        T[i] = j + 1;  // assumed timeslot starting from 0
+                        T[i] = j + 1;  // assumed timeslot starting from 1
                         break;
                     }
                 }
@@ -351,5 +351,28 @@ public class Solution {
 
     public Instance getInstance() {
         return instance;
+    }
+
+    public boolean swappable(int ei, int ti, int ej, int tj) {
+        boolean conflict1 = false;
+        boolean conflict2 = false;
+        for (int i = 0; i < this.timetable[ti].size(); i++) {
+            int ek = this.timetable[ti].get(i);
+            if (ei != ek && this.instance.getNConflicts(ei, ek) > 0) {
+                conflict1 = true;
+                break;
+            }
+        }
+        if (!conflict1) {
+            for (int i = 0; i < this.timetable[tj].size(); i++) {
+                int ek = this.timetable[tj].get(i);
+                if (ej != ek && this.instance.getNConflicts(ej, ek) > 0) {
+                    conflict2 = true;
+                    break;
+                }
+            }
+        }
+
+        return !conflict1 && !conflict2;
     }
 }
