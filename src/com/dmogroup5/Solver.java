@@ -3,12 +3,14 @@ package com.dmogroup5;
 import com.dmogroup5.heuristics.GeneticAlgorithms;
 import com.dmogroup5.heuristics.LocalSearch;
 import com.dmogroup5.utils.Instance;
+import com.dmogroup5.utils.Logger;
 import com.dmogroup5.utils.Solution;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Solver {
 
@@ -24,7 +26,7 @@ public class Solver {
     /**
      * @throws Exception caused mainly if an exam is compared to itself in the N matrix
      */
-    public void solve() throws Exception {
+    public void solveGA() throws Exception {
         System.out.println("Solving " + this.instance.getInstanceName());
 
         // Test reading exams
@@ -51,6 +53,8 @@ public class Solver {
             System.out.println(timeslot);
         }
         System.out.println("OBJ VALUE: " + solution.getFitness());
+
+        Logger logger = new Logger();
 
         // *********** PARAMETERS ***********
         // size of the population
@@ -87,6 +91,7 @@ public class Solver {
             Solution bestSol = population[bestIdx];
             try {
                 bestSol.writeSolution();
+                logger.appendCurrentBest(bestSol.getFitness());
                 if (this.verbose) {
                     System.out.println("File written successfully");
                 }
@@ -139,5 +144,60 @@ public class Solver {
 
             it++;
         }
+    }
+
+    public void solveILS() throws Exception {
+        Solution current = Solution.weightedSolution(this.instance, true);
+        Logger logger = new Logger();
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                current.writeSolution();
+                logger.appendCurrentBest(current.getFitness());
+
+                if (this.verbose) {
+                    System.out.println("File written successfully");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            current = iterativeImprovement(current);
+
+        }
+    }
+
+    private Solution iterativeImprovement(Solution parent) {
+        int N_NEIGH_STR = LocalSearch.NeighStructures.values().length;
+        Solution[] twins = new Solution[N_NEIGH_STR];
+
+        double twinsBestF = Double.MAX_VALUE;
+        int bestTwinIdx = 0;
+        for (LocalSearch.NeighStructures k: LocalSearch.NeighStructures.values()) {
+
+            twins[k.ordinal()] = LocalSearch.genImprovedSolution(parent, k);
+            double tmpScore = twins[k.ordinal()].getFitness();
+            if (tmpScore < twinsBestF) {
+                twinsBestF = tmpScore;
+                bestTwinIdx = k.ordinal();
+            }
+        }
+
+        Solution bestSolution;
+        if (twinsBestF < parent.getFitness()) {
+            bestSolution = twins[bestTwinIdx];
+            System.out.println("better N" + (bestTwinIdx+2));
+        } else {
+            double delta = twinsBestF - parent.getFitness();
+            double pick = new Random().nextDouble();
+            if (pick < Math.exp(-delta)) {
+                bestSolution = twins[bestTwinIdx];
+                System.out.println("worse N" + (bestTwinIdx+2) + " delta: " + delta);
+            } else {
+                bestSolution = parent;
+                System.out.println("nochange");
+            }
+        }
+
+        return bestSolution;
     }
 }
