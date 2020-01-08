@@ -13,6 +13,7 @@ public class Instance {
     private int nStudents;
     private int[] exams;
     private int nTimeslots;
+    private int enrolments;
 
     // Conflicts matrix: N[i][j] = # of conflicts between exam in position i and exam in position j
     // shape: (nExams, nExams)
@@ -25,6 +26,7 @@ public class Instance {
      */
     private Instance(String instanceName, String directory) {
         this.instanceName = instanceName;
+        this.enrolments = 0;
 
         if (directory.endsWith("/") || directory.equals("")) {
             this.directory = directory;
@@ -120,6 +122,7 @@ public class Instance {
                     studentSubscriptions.put(sID, new ArrayList<>());
                     studentSubscriptions.get(sID).add(eID);
                 }
+                this.enrolments++;
             }
         }
 
@@ -186,4 +189,9 @@ public class Instance {
     public int getnStudents() {
         return nStudents;
     }
+
+    public int getEnrolments() {
+        return enrolments;
+    }
+
 }
