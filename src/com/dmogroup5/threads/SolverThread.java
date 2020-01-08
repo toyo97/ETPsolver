@@ -14,7 +14,7 @@ public class SolverThread extends Thread {
     @Override
     public void run() {
         try {
-            this.solver.solveILS();
+            this.solver.solveILS(100);
         } catch (InterruptedException e) {
             System.out.println("Solver execution interrupted");
         } catch (Exception e) {

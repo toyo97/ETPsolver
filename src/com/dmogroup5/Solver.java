@@ -146,27 +146,63 @@ public class Solver {
         }
     }
 
-    public void solveILS() throws Exception {
+    /**
+     * @param tempSA    if > 0 enables simulated annealing
+     */
+    public void solveILS(double tempSA) throws Exception {
         Solution current = Solution.weightedSolution(this.instance, true);
+        Solution best = current;
         Logger logger = new Logger();
+
+        double coolingRate;
+        if (this.instance.getEnrolments() > 10000) {
+            coolingRate = 0.003;
+        } else {
+            coolingRate = 0.001;
+        }
+        System.out.println("cooling rate set up: " + coolingRate);
+
+        int it = 1;
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                current.writeSolution();
+                best.writeSolution();
                 logger.appendCurrentBest(current.getFitness());
 
                 if (this.verbose) {
-                    System.out.println("File written successfully");
+//                    System.out.println("File written successfully");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            current = iterativeImprovement(current, tempSA);
+            if (current.getFitness() < best.getFitness()) {
+                best = current;
+            }
 
-            current = iterativeImprovement(current);
+            if (tempSA > 0) {
+                tempSA *= 1 - coolingRate;
+            }
 
+            if (this.verbose && it % 50 == 0) {
+                System.out.println("**********\nIT: " + it);
+                System.out.println("BEST: " + best.getFitness());
+                System.out.println("CURRENT: " + current.getFitness());
+                System.out.println("TEMP: " + tempSA);
+            }
+
+            it++;
         }
     }
 
-    private Solution iterativeImprovement(Solution parent) {
+    /**
+     * Generate an improved child solution. If simulated annealing is enabled (temp > 0) also worsening
+     * solutions are accepted with a certain probability
+     *
+     * @param parent    parent solution
+     * @param tempSA    if simulated annealing is desired. Otherwise give any non-positive number
+     * @return          new solution
+     */
+    private Solution iterativeImprovement(Solution parent, double tempSA) {
         int N_NEIGH_STR = LocalSearch.NeighStructures.values().length;
         Solution[] twins = new Solution[N_NEIGH_STR];
 
@@ -176,28 +212,48 @@ public class Solver {
 
             twins[k.ordinal()] = LocalSearch.genImprovedSolution(parent, k);
             double tmpScore = twins[k.ordinal()].getFitness();
-            if (tmpScore < twinsBestF) {
+            if (tmpScore < twinsBestF && tmpScore != parent.getFitness()) {
                 twinsBestF = tmpScore;
                 bestTwinIdx = k.ordinal();
             }
         }
 
         Solution bestSolution;
+
         if (twinsBestF < parent.getFitness()) {
             bestSolution = twins[bestTwinIdx];
-            System.out.println("better N" + (bestTwinIdx+2));
+//            System.out.println("better N" + (bestTwinIdx+1));
         } else {
-            double delta = twinsBestF - parent.getFitness();
-            double pick = new Random().nextDouble();
-            if (pick < Math.exp(-delta)) {
-                bestSolution = twins[bestTwinIdx];
-                System.out.println("worse N" + (bestTwinIdx+2) + " delta: " + delta);
+            if (tempSA > 0) {
+                double pick = Math.random();
+                double acceptanceProb = simulatedAnnealingProb(parent.getFitness(), twinsBestF, tempSA);
+//                if (acceptanceProb<1) {
+//                    System.out.println(pick + " XXX " + acceptanceProb);
+//                }
+
+                if (pick < acceptanceProb) {
+                    bestSolution = twins[bestTwinIdx];
+//                System.out.println("worse N" + (bestTwinIdx+1) + " delta: " + (twinsBestF - parent.getFitness()));
+                } else {
+                    bestSolution = parent;
+//                System.out.println("nochange");
+                }
             } else {
                 bestSolution = parent;
-                System.out.println("nochange");
             }
+
         }
 
         return bestSolution;
+    }
+
+    private double simulatedAnnealingProb(double currentEnergy, double newEnergy, double temp) {
+        double delta = currentEnergy - newEnergy;
+        if (delta > 0) {
+            return 1.0;
+        } else {
+            double worseningRatio = delta/currentEnergy * 100;
+            return Math.exp(worseningRatio/temp);
+        }
     }
 }
