@@ -23,7 +23,6 @@ public class LocalSearch {
         N11 // Apply kempe-chain taking the highest penalty course from a random 20% selection of the courses
     }
 
-    // TODO implement both with first improvement and first new solution
     public static Solution genImprovedSolution(Solution oldSolution, NeighStructures neighStruct) {
         Solution newSolution = new Solution(oldSolution);
 

@@ -22,6 +22,7 @@ public class Solver {
         this.verbose = verbose;
     }
 
+    // TODO implement solveAllInstances
 
     /**
      * @throws Exception caused mainly if an exam is compared to itself in the N matrix
