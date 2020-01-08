@@ -25,41 +25,51 @@ public class LocalSearch {
 
     public static Solution genImprovedSolution(Solution oldSolution, NeighStructures neighStruct) {
         Solution newSolution = new Solution(oldSolution);
-
         switch (neighStruct) {
             case N1:
                 newSolution = swapRandExams(oldSolution);
+                newSolution.setNeighborhoodOrigin(1);
                 break;
             case N2:
                 double r = 1. / oldSolution.getInstance().getExams().length;
                 newSolution = GeneticAlgorithms.mutateSolution(oldSolution, r);
+                newSolution.setNeighborhoodOrigin(2);
                 break;
             case N3:
                 newSolution = swapRandTimeslots(oldSolution);
+                newSolution.setNeighborhoodOrigin(3);
                 break;
             case N4:
                 newSolution = moveRandTimeslot(oldSolution);
+                newSolution.setNeighborhoodOrigin(4);
                 break;
             case N5:
                 newSolution = moveCriticalExam(oldSolution, 0.1, false);
+                newSolution.setNeighborhoodOrigin(5);
                 break;
             case N6:
                 newSolution = moveCriticalExam(oldSolution, 0.2, false);
+                newSolution.setNeighborhoodOrigin(6);
                 break;
             case N7:
                 newSolution = moveCriticalExam(oldSolution, 0.1, true);
+                newSolution.setNeighborhoodOrigin(7);
                 break;
             case N8:
                 newSolution = moveCriticalExam(oldSolution, 0.2, true);
+                newSolution.setNeighborhoodOrigin(8);
                 break;
             case N9:
                 newSolution = kempeRandMove(oldSolution);
+                newSolution.setNeighborhoodOrigin(9);
                 break;
             case N10:
                 newSolution = kempeMove(oldSolution, 0.1);
+                newSolution.setNeighborhoodOrigin(10);
                 break;
             case N11:
                 newSolution = kempeMove(oldSolution, 0.2);
+                newSolution.setNeighborhoodOrigin(11);
                 break;
         }
         return newSolution;

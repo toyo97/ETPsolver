@@ -19,6 +19,7 @@ public class Solution {
     private int[] T;
     private Instance instance;
     private double fitness;
+    private int neighborhoodOrigin = 0;
 
     /**
      * Generates an empty solution
@@ -33,6 +34,7 @@ public class Solution {
         for (int i = 0; i < instance.getnTimeslots(); i++) {
             this.timetable[i] = new ArrayList<>();
         }
+        this.neighborhoodOrigin = 0;
     }
 
     /**
@@ -52,7 +54,8 @@ public class Solution {
             }
         }
     }
-
+    
+    
     /**
      * Generate a feasible initial solution using the saturation degree ordering
      * (or any order provided by the getNextExam() function)
@@ -220,6 +223,9 @@ public class Solution {
     public void writeSolution() throws IOException {
         int[] T = this.getT();
         String line;
+        // TODO extract number from instance name and add it to solution name
+//        String instanceName = this.instance.getInstanceName();
+//        int instanceNumber = instanceName
         FileWriter fw = new FileWriter("solution.sol");
 
         for (int i = 0; i < T.length; i++) {
@@ -374,5 +380,13 @@ public class Solution {
         }
 
         return !conflict1 && !conflict2;
+    }
+
+    public int getNeighborhoodOrigin() {
+        return this.neighborhoodOrigin;
+    }
+
+    public void setNeighborhoodOrigin(int no) {
+        this.neighborhoodOrigin = no;
     }
 }

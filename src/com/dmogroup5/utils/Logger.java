@@ -17,10 +17,10 @@ public class Logger {
         this.logFileName = logFileName;
     }
 
-    public void appendCurrentBest(double value) throws IOException {
+    public void appendCurrentBest(double value, int N) throws IOException {
         FileWriter fw = new FileWriter(this.logFileName, true);
         BufferedWriter writer = new BufferedWriter(fw);
-        writer.append(Double.toString(value));
+        writer.append(Double.toString(value) + " " + Integer.toString(N));
         writer.newLine();
         writer.close();
     }

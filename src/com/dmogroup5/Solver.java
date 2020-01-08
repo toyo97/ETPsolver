@@ -92,7 +92,7 @@ public class Solver {
             Solution bestSol = population[bestIdx];
             try {
                 bestSol.writeSolution();
-                logger.appendCurrentBest(bestSol.getFitness());
+                logger.appendCurrentBest(bestSol.getFitness(), 0);
                 if (this.verbose) {
                     System.out.println("File written successfully");
                 }
@@ -156,7 +156,7 @@ public class Solver {
         Logger logger = new Logger();
 
         double coolingRate;
-        if (this.instance.getEnrolments() > 10000) {
+        if (this.instance.getEnrolments() > 15000) {
             coolingRate = 0.003;
         } else {
             coolingRate = 0.001;
@@ -167,7 +167,7 @@ public class Solver {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 best.writeSolution();
-                logger.appendCurrentBest(current.getFitness());
+                logger.appendCurrentBest(current.getFitness(), current.getNeighborhoodOrigin());
 
                 if (this.verbose) {
 //                    System.out.println("File written successfully");
