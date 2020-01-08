@@ -103,9 +103,34 @@ public class LocalSearch {
     }
 
     /**
-     * N3
+     * Random N3
      */
-    // TODO implement steepest descent
+    private static Solution swapTimeslots(Solution oldSolution, int ts1, int ts2) {
+        Solution newSolution = new Solution(oldSolution);
+        newSolution.getTimetable()[ts1] = (ArrayList) oldSolution.getTimetable()[ts2].clone();
+        newSolution.getTimetable()[ts2] = (ArrayList) oldSolution.getTimetable()[ts1].clone();
+        newSolution.resetAttributes();
+
+        return newSolution;
+    }
+
+    /**
+     * Steepest descent version of N3
+     */
+    private static Solution swapTimeslotsSD(Solution oldSolution) {
+        int nTimeslots = oldSolution.getTimetable().length;
+        Solution bestSolution = oldSolution;
+        for (int i = 0; i < nTimeslots - 1; i++) {
+            for (int j = i + 1; j < nTimeslots; j++) {
+                Solution newSolution = LocalSearch.swapTimeslots(oldSolution, i, j);
+                if (newSolution.getFitness() < bestSolution.getFitness()) {
+                    bestSolution = newSolution;
+                }
+            }
+        }
+        return bestSolution;
+    }
+
     private static Solution swapRandTimeslots(Solution oldSolution) {
         Random rand = new Random();
         int ts1 = rand.nextInt(oldSolution.getTimetable().length);
@@ -114,18 +139,7 @@ public class LocalSearch {
             ts2 = rand.nextInt(oldSolution.getTimetable().length);
         } while (ts1 == ts2);
 
-        Solution newSolution = new Solution(oldSolution);
-        newSolution.getTimetable()[ts1] = (ArrayList) oldSolution.getTimetable()[ts2].clone();
-        newSolution.getTimetable()[ts2] = (ArrayList) oldSolution.getTimetable()[ts1].clone();
-        newSolution.resetAttributes();
-//        if (!newSolution.isFeasible()) {
-//            System.err.println("Solution is not feasible!");
-//        }
-//        if (newSolution.getFitness() > oldSolution.getFitness()) {
-//            System.out.println("[IMPROVEMENT N3] Swapped " + ts1 + " with " + ts2);
-//        }
-
-        return newSolution;
+        return LocalSearch.swapTimeslots(oldSolution, ts1, ts2);
     }
 
     /**
@@ -234,6 +248,9 @@ public class LocalSearch {
         return newSolution;
     }
 
+    /**
+     * N9
+     */
     private static Solution kempeRandMove(Solution oldSolution) {
         Solution newSolution = new Solution(oldSolution);
         newSolution.resetAttributes();
@@ -246,6 +263,9 @@ public class LocalSearch {
         return kempeChainAlgorithm(newSolution, ei, ti);
     }
 
+    /**
+     * N10-N11
+     */
     private static Solution kempeMove(Solution oldSolution, double ratio) {
 
         int[] highestPenaltyExam = oldSolution.getHighestPenaltyExam(ratio);
