@@ -1,6 +1,7 @@
 package com.dmogroup5.utils;
 
 import java.io.*;
+import java.util.Arrays;
 
 public class Logger {
 
@@ -17,10 +18,16 @@ public class Logger {
         this.logFileName = logFileName;
     }
 
-    public void appendCurrentBest(double value, int N) throws IOException {
+    public void appendCurrentBest(double value, int N, int[] solutionT) throws IOException {
         FileWriter fw = new FileWriter(this.logFileName, true);
         BufferedWriter writer = new BufferedWriter(fw);
-        writer.append(Double.toString(value) + " " + Integer.toString(N));
+
+        writer.append(Double.toString(value)).append(" ").append(Integer.toString(N));
+
+        if (solutionT != null) {
+            writer.append(" ").append(Arrays.toString(solutionT));
+        }
+
         writer.newLine();
         writer.close();
     }

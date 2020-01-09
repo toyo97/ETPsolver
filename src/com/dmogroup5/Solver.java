@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class Solver {
 
@@ -92,7 +91,7 @@ public class Solver {
             Solution bestSol = population[bestIdx];
             try {
                 bestSol.writeSolution();
-                logger.appendCurrentBest(bestSol.getFitness(), 0);
+                logger.appendCurrentBest(bestSol.getFitness(), 0, null);
                 if (this.verbose) {
                     System.out.println("File written successfully");
                 }
@@ -156,21 +155,30 @@ public class Solver {
         Logger logger = new Logger();
 
         double coolingRate;
-        if (this.instance.getEnrolments() > 15000) {
+        if (this.instance.getEnrolments() > 30000) {
             coolingRate = 0.003;
+        } else if (this.instance.getEnrolments() > 15000) {
+            coolingRate = 0.002;
         } else {
-            coolingRate = 0.001;
+            coolingRate = 0.0003;
         }
-        System.out.println("cooling rate set up: " + coolingRate);
+        if (this.verbose) {
+            System.out.println("Simulated annealing set up: TEMP=" + tempSA +", CR="+ coolingRate);
+        }
 
         int it = 1;
+        double printedSolFitness = Double.MAX_VALUE;
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                best.writeSolution();
-                logger.appendCurrentBest(current.getFitness(), current.getNeighborhoodOrigin());
+                // if new best solution is available, print. otherwise do not touch the solution file
+                if (best.getFitness() < printedSolFitness) {
+                    best.writeSolution();
+                    printedSolFitness = best.getFitness();
+                }
 
                 if (this.verbose) {
 //                    System.out.println("File written successfully");
+                    logger.appendCurrentBest(current.getFitness(), current.getNeighborhoodOrigin(), null);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
