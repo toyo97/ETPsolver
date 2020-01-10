@@ -27,7 +27,7 @@ public class Params {
                 .longOpt("time-lim")
                 .hasArg()
                 .argName("seconds")
-                .desc("Limit the execution time for `tlim` seconds")
+                .desc("Limit the execution time for `tlim` seconds. If not specified, the program will not stop by itself.")
                 .build();
 
         this.options.addOption(tlim);
@@ -42,8 +42,9 @@ public class Params {
                     " If the instance files are in the same folder of the solver, just insert the instance name `instance01`\n\n";
             String footer = "\nFor further information take a look at the README at http://github.com/toyo97/ETPsolver\n" +
                     "Please report issues at mailto:vittorio.zampinetti@studenti.polito.it";
-            new HelpFormatter().printHelp("java -jar ETPsolver_DMOgroup05.jar <instance_name_path> -t <tlim> [-h] [-d]",
+            new HelpFormatter().printHelp("java -jar ETPsolver_DMOgroup05.jar <instance_name_path> [-t <tlim>] [-h] [-d]",
                     header, this.options, footer,false);
+            throw new ParseException("Help option is selected");
         } else {
 
             if (line.hasOption("t")) {
@@ -51,8 +52,6 @@ public class Params {
                 if (this.TLIM <= 0) {
                     throw new ParseException("Time limit value not valid, please insert a positive number (seconds)");
                 }
-            } else {
-                throw new ParseException("Time option is required.");
             }
 
             if (line.hasOption("d")) {
