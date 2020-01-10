@@ -15,15 +15,18 @@ public class Solver {
 
     private Instance instance;
     private boolean verbose;
+    private double solvingTime;
 
-    public Solver(Instance instance, boolean verbose) {
+    public Solver(Instance instance, boolean verbose, double solvingTime) {
         this.instance = instance;
         this.verbose = verbose;
+        this.solvingTime = solvingTime;
     }
 
-    // TODO implement solveAllInstances
-
     /**
+     * (NOT USED)
+     * Genetic Algorithm solving
+     *
      * @throws Exception caused mainly if an exam is compared to itself in the N matrix
      */
     public void solveGA() throws Exception {
@@ -58,7 +61,6 @@ public class Solver {
 
         // *********** PARAMETERS ***********
         // size of the population
-        // TODO use a pop size which is a function of the density of the instance
         int POP_SIZE = 30;
         // how many individuals (in percentage) are chosen from the population for generating children
         double SEL_RATIO = 0.2;
@@ -102,7 +104,6 @@ public class Solver {
             // ****** CANDIDATES SELECTION ******
             // select 20% (selection percentage/ratio) of the population individuals
             int nSelected = (int) (POP_SIZE * SEL_RATIO);
-            // TODO see what's better
 //            int[] parentsIdx = new Random().ints(nSelected, 0, POP_SIZE).toArray();
             Solution[] parents = GeneticAlgorithms.rouletteWheelSelection(Arrays.asList(population), nSelected);
 

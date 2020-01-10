@@ -21,7 +21,7 @@ public class Main {
             Instance instance = Instance.readInstance(params.getInstanceName());
 
             // Start the execution of the solver in a separate thread
-            Solver solver = new Solver(instance, params.isDEBUG());
+            Solver solver = new Solver(instance, params.isDEBUG(), params.getTLIM());
             SolverThread solverThread = new SolverThread(solver);
             solverThread.start();
 
