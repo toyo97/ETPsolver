@@ -57,10 +57,13 @@ public class Instance {
      */
     public static Instance readInstance(String instanceName, String directory) throws IOException {
         Instance instance = new Instance(instanceName, directory);
-
-        instance.readExams();
-        instance.readStudents();
-        instance.readNTimeslots();
+        try {
+            instance.readExams();
+            instance.readStudents();
+            instance.readNTimeslots();
+        } catch (IOException e) {
+            throw new IOException("File " + e.getMessage() + " not found");
+        }
 
         return instance;
     }
@@ -179,8 +182,8 @@ public class Instance {
         else if (i < j)
             return this.N[i][j];
         else {
-            System.out.println("WARNING: an exam has been compared to itself, " +
-                    "you might have put it twice in the timetable");
+            System.err.println("WARNING: an exam has been compared to itself, " +
+                    "it might have been put twice in the timetable");
             return Integer.MAX_VALUE;
         }
 //            throw new Exception("Exam " + i + " has been compared with itself!");

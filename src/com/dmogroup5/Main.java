@@ -3,6 +3,7 @@ package com.dmogroup5;
 import com.dmogroup5.parser.Params;
 import com.dmogroup5.threads.SolverThread;
 import com.dmogroup5.utils.*;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
@@ -30,10 +31,18 @@ public class Main {
             System.out.println("Time available elapsed!");
             solverThread.interrupt();
 
-        } catch (ParseException | IOException e) {
-            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            if (!params.isHELP()) {
+                System.err.println(e.getMessage());
+                System.out.println("You may want to check usage with help option (-h)");
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (ParseException exp) {
+            if (!params.isHELP()) {
+                System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+                System.out.println("You may want to check usage with help option (-h)");
+            }
         }
     }
 }
