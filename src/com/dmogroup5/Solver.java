@@ -148,6 +148,9 @@ public class Solver {
     }
 
     /**
+     * Solving algorithm which uses Iterative Local Search improvements with Simulated Annealing
+     * approach for worsening solutions acceptance
+     *
      * @param tempSA    if > 0 enables simulated annealing
      */
     public void solveILS(double tempSA) throws Exception {
@@ -155,17 +158,20 @@ public class Solver {
         Solution best = current;
         Logger logger = new Logger();
 
-        double coolingRate;
-        if (this.instance.getEnrolments() > 30000) {
-            coolingRate = 0.003;
-        } else if (this.instance.getEnrolments() > 15000) {
-            coolingRate = 0.002;
-        } else {
-            coolingRate = 0.0003;
-        }
+        double coolingRate = this.instance.getEnrolments() * 10e-8;
+//        if (this.instance.getEnrolments() > 40000) {
+//            coolingRate = 0.004;
+//        } else if (this.instance.getEnrolments() > 30000) {
+//            coolingRate = 0.003;
+//        } else if (this.instance.getEnrolments() > 15000) {
+//            coolingRate = 0.002;
+//        } else {
+//            coolingRate = 0.0003;
+//        }
         if (this.verbose) {
             System.out.println("Simulated annealing set up: TEMP=" + tempSA +", CR="+ coolingRate);
         }
+        System.out.println("Solving instance " + instance.getInstanceName() + "...");
 
         int it = 1;
         double printedSolFitness = Double.MAX_VALUE;
@@ -202,6 +208,7 @@ public class Solver {
 
             it++;
         }
+        System.out.println("Best obj function value: " + best.getFitness());
     }
 
     /**
@@ -218,7 +225,16 @@ public class Solver {
 
         double twinsBestF = Double.MAX_VALUE;
         int bestTwinIdx = 0;
-        for (LocalSearch.NeighStructures k: LocalSearch.NeighStructures.values()) {
+
+        LocalSearch.NeighStructures[] usedNbh = {LocalSearch.NeighStructures.N1,
+            LocalSearch.NeighStructures.N3, LocalSearch.NeighStructures.N4, LocalSearch.NeighStructures.N7,
+            LocalSearch.NeighStructures.N7, LocalSearch.NeighStructures.N8, LocalSearch.NeighStructures.N9,
+            LocalSearch.NeighStructures.N10, LocalSearch.NeighStructures.N11};
+
+        // TODO change for considering all neighborhood structures
+        // LocalSearch.NeighStructures[] usedNbh = LocalSearch.NeighStructures.values();
+
+        for (LocalSearch.NeighStructures k: usedNbh) {
 
             twins[k.ordinal()] = LocalSearch.genImprovedSolution(parent, k);
             double tmpScore = twins[k.ordinal()].getFitness();
@@ -257,13 +273,27 @@ public class Solver {
         return bestSolution;
     }
 
+    /**
+     * Compute the acceptance probability according to simulated annealing approach.
+     * Returns 1 if positive improvement (newEnergy < currentEnergy)
+     *
+     * @param currentEnergy objective value of the current solution
+     * @param newEnergy     objective value of the new solution
+     * @param temp          current temperature
+     * @return              double in (0,1)
+     */
     private double simulatedAnnealingProb(double currentEnergy, double newEnergy, double temp) {
         double delta = currentEnergy - newEnergy;
         if (delta > 0) {
             return 1.0;
         } else {
+            // percentage worsening
             double worseningRatio = delta/currentEnergy * 100;
             return Math.exp(worseningRatio/temp);
         }
+    }
+
+    public double getSolvingTime() {
+        return solvingTime;
     }
 }

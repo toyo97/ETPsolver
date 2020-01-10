@@ -86,10 +86,10 @@ public class Solution {
 
                 examAssigned = weightedSolution.placeExam(i, randTimetable);
 
-                if (!examAssigned) {
-                    System.out.println("ERROR: exam not assigned to any timeslot");
-                    break;
-                }
+//                if (!examAssigned) {
+//                    System.out.println("ERROR: exam not assigned to any timeslot");
+//                    break;
+//                }
             }
         }
 
