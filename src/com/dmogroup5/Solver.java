@@ -199,11 +199,8 @@ public class Solver {
                 tempSA *= 1 - coolingRate;
             }
 
-            if (this.verbose && it % 50 == 0) {
-                System.out.println("**********\nIT: " + it);
-                System.out.println("BEST: " + best.getFitness());
-                System.out.println("CURRENT: " + current.getFitness());
-                System.out.println("TEMP: " + tempSA);
+            if (this.verbose && it % 100 == 0) {
+                System.out.print("Iteration: " + it + " | Best: " + best.getFitness() + "             \r");
             }
 
             it++;
