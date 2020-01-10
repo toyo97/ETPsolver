@@ -21,7 +21,8 @@ public class Params {
 
     public void parse() throws ParseException {
         this.options.addOption(new Option("h", "help", false, "Print this message"));
-        this.options.addOption(new Option("d", "debug", false, "Enable debug mode"));
+        this.options.addOption(new Option("d", "debug", false, "Enable debug mode:" +
+                " prints additional message and save execution iterations in a log file"));
 
         Option tlim = Option.builder("t")
                 .longOpt("time-lim")

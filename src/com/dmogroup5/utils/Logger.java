@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class Logger {
 
-    private String logFileName = "log/log.txt";
+    private String logFileName = "log.txt";
 
     public Logger() {
         File logFile = new File(logFileName);
