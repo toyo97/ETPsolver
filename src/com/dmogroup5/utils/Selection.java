@@ -5,7 +5,7 @@ import java.util.Collections;
 
 public class Selection {
     public static int[] pickRandPortion(int[] total, double ratio) {
-        int n = (int) (total.length * ratio);
+        int n = (int) Math.ceil(total.length * ratio);
         int[] res = new int[n];
 
         ArrayList<Integer> totalList = new ArrayList<>();

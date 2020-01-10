@@ -16,7 +16,7 @@ public class GeneticAlgorithms {
      */
     public static Solution mutateSolution(Solution parent, double ratio) {
         int totExams = parent.getInstance().getExams().length;
-        int nCandidates = (int) (totExams * ratio);
+        int nCandidates = (int) Math.ceil(totExams * ratio);
 
         Solution mutatedSol = new Solution(parent);
 
