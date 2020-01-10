@@ -14,7 +14,11 @@ public class SolverThread extends Thread {
     @Override
     public void run() {
         try {
-            this.solver.solveILS(100);
+            // The temperature depends on how much time is dedicated to the solving algorithm
+            // From a time in range 150-300 sec, temp will be around 700-1200 (empirically found to
+            // be appropriate
+            double temp = 3.33 * this.solver.getSolvingTime();
+            this.solver.solveILS(temp);
         } catch (InterruptedException e) {
             System.out.println("Solver execution interrupted");
         } catch (Exception e) {
