@@ -75,6 +75,9 @@ public class LocalSearch {
         return newSolution;
     }
 
+    /**
+     * N1
+     */
     private static Solution swapRandExams(Solution oldSolution) {
         Solution newSolution = new Solution(oldSolution);
 

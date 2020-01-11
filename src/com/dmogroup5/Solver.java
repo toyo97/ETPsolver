@@ -159,15 +159,7 @@ public class Solver {
         Logger logger = new Logger();
 
         double coolingRate = this.instance.getEnrolments() * 10e-8;
-//        if (this.instance.getEnrolments() > 40000) {
-//            coolingRate = 0.004;
-//        } else if (this.instance.getEnrolments() > 30000) {
-//            coolingRate = 0.003;
-//        } else if (this.instance.getEnrolments() > 15000) {
-//            coolingRate = 0.002;
-//        } else {
-//            coolingRate = 0.0003;
-//        }
+
         if (this.verbose) {
             System.out.println("Simulated annealing set up: TEMP=" + tempSA +", CR="+ coolingRate);
         }
@@ -229,7 +221,7 @@ public class Solver {
             LocalSearch.NeighStructures.N10, LocalSearch.NeighStructures.N11};
 
         // TODO change for considering all neighborhood structures
-        // LocalSearch.NeighStructures[] usedNbh = LocalSearch.NeighStructures.values();
+//         LocalSearch.NeighStructures[] usedNbh = LocalSearch.NeighStructures.values();
 
         for (LocalSearch.NeighStructures k: usedNbh) {
 
