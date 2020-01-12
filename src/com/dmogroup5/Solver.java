@@ -158,7 +158,7 @@ public class Solver {
         Solution best = current;
         Logger logger = new Logger();
 
-        double coolingRate = this.instance.getEnrolments() * 10e-8;
+        double coolingRate = this.instance.getExams().length * 4e-6;
 
         if (this.verbose) {
             System.out.println("Simulated annealing set up: TEMP=" + tempSA +", CR="+ coolingRate);
